@@ -174,4 +174,128 @@
   </div>
 </section>
 
+<!-- ── Flipbook ─────────────────────────────────────────────────────────── -->
+<section class="flipbook-section">
+  <div class="flipbook-header">
+    <span class="index-number">PDF</span>
+    <h2 class="index-title">Ministry of Failures — සම්පූර්ණ ලේඛනය</h2>
+    <span class="index-en">Full Document Flipbook</span>
+  </div>
+
+  <div class="flipbook-wrap">
+    <div class="flipbook-controls">
+      <button id="fbPrev" class="fb-btn">← Prev</button>
+      <span class="fb-page-info">
+        Page <span id="fbCurrent">1</span> of <span id="fbTotal">—</span>
+      </span>
+      <button id="fbNext" class="fb-btn">Next →</button>
+      <input type="number" id="fbGoTo" class="fb-goto" min="1" placeholder="Go to page" />
+    </div>
+
+    <div class="flipbook-canvas-wrap">
+      <canvas id="fbCanvas"></canvas>
+      <div id="fbLoading" class="fb-loading">Loading PDF…</div>
+    </div>
+
+    <div class="flipbook-thumbnails" id="fbThumbs"></div>
+  </div>
+</section>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+(function() {
+  const PDF_URL = "{{ url_for('static', filename='pdf/NPP_Failures_size_redue.pdf') }}";
+  pdfjsLib.GlobalWorkerOptions.workerSrc =
+    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+  let pdfDoc = null;
+  let currentPage = 1;
+  let rendering = false;
+
+  const canvas   = document.getElementById('fbCanvas');
+  const ctx      = canvas.getContext('2d');
+  const loading  = document.getElementById('fbLoading');
+  const total    = document.getElementById('fbTotal');
+  const current  = document.getElementById('fbCurrent');
+  const thumbs   = document.getElementById('fbThumbs');
+
+  async function renderPage(num) {
+    if (rendering) return;
+    rendering = true;
+    loading.style.display = 'flex';
+
+    const page = await pdfDoc.getPage(num);
+    const viewport = page.getViewport({ scale: 1.6 });
+    canvas.width  = viewport.width;
+    canvas.height = viewport.height;
+
+    await page.render({ canvasContext: ctx, viewport }).promise;
+    loading.style.display = 'none';
+    current.textContent = num;
+    rendering = false;
+
+    // Highlight active thumb
+    document.querySelectorAll('.fb-thumb').forEach(t => t.classList.remove('active'));
+    const activeThumb = document.querySelector(`.fb-thumb[data-page="${num}"]`);
+    if (activeThumb) {
+      activeThumb.classList.add('active');
+      activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }
+
+  async function renderThumb(num) {
+    const page = await pdfDoc.getPage(num);
+    const viewport = page.getViewport({ scale: 0.18 });
+    const c = document.createElement('canvas');
+    c.width  = viewport.width;
+    c.height = viewport.height;
+    await page.render({ canvasContext: c.getContext('2d'), viewport }).promise;
+
+    const btn = document.createElement('button');
+    btn.className = 'fb-thumb';
+    btn.dataset.page = num;
+    btn.title = `Page ${num}`;
+    btn.appendChild(c);
+
+    const label = document.createElement('span');
+    label.textContent = num;
+    btn.appendChild(label);
+
+    btn.addEventListener('click', () => { currentPage = num; renderPage(num); });
+    thumbs.appendChild(btn);
+  }
+
+  pdfjsLib.getDocument(PDF_URL).promise.then(async doc => {
+    pdfDoc = doc;
+    total.textContent = doc.numPages;
+    renderPage(currentPage);
+
+    // Render thumbnails (batch to avoid blocking)
+    for (let i = 1; i <= doc.numPages; i++) {
+      await renderThumb(i);
+    }
+  }).catch(err => {
+    loading.textContent = 'Failed to load PDF.';
+    console.error(err);
+  });
+
+  document.getElementById('fbPrev').addEventListener('click', () => {
+    if (currentPage > 1) { currentPage--; renderPage(currentPage); }
+  });
+  document.getElementById('fbNext').addEventListener('click', () => {
+    if (currentPage < pdfDoc.numPages) { currentPage++; renderPage(currentPage); }
+  });
+  document.getElementById('fbGoTo').addEventListener('change', function() {
+    const p = parseInt(this.value);
+    if (p >= 1 && p <= pdfDoc.numPages) { currentPage = p; renderPage(p); this.value = ''; }
+  });
+
+  // Keyboard arrows
+  document.addEventListener('keydown', e => {
+    if (e.key === 'ArrowRight' && currentPage < (pdfDoc?.numPages || 1)) { currentPage++; renderPage(currentPage); }
+    if (e.key === 'ArrowLeft'  && currentPage > 1) { currentPage--; renderPage(currentPage); }
+  });
+})();
+</script>
+
 {% endblock %}
