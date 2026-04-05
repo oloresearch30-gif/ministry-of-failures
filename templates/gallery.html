@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block title %}Gallery | Ministry of Failures{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">ගැලරිය <span>Gallery</span></h1>
+  <p class="page-sub">සියලු සාක්ෂි පින්තූර — All Evidence Images</p>
+</div>
+
+{% if files %}
+<div class="gallery-controls">
+  <input type="text" id="gallerySearch" class="search-input" placeholder="Search images..." />
+  <span class="file-count">{{ files|length }} images</span>
+</div>
+
+<div class="gallery-masonry" id="galleryGrid">
+  {% for f in files %}
+  <div class="gallery-item" data-name="{{ f.name }}" onclick="openLightbox('{{ f.id }}', '{{ f.name }}', '{{ f.webViewLink }}')">
+    {% if f.thumbnailLink %}
+    <img
+      src="{{ f.thumbnailLink.replace('=s220', '=s600') }}"
+      alt="{{ f.name }}"
+      loading="lazy"
+    />
+    {% else %}
+    <div class="gallery-placeholder">
+      <span>◻</span>
+      <small>{{ f.name }}</small>
+    </div>
+    {% endif %}
+    <div class="gallery-overlay">
+      <span class="gallery-filename">{{ f.name }}</span>
+      <a href="{{ f.webViewLink }}" target="_blank" onclick="event.stopPropagation()" class="gallery-open">Open ↗</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" class="lightbox" onclick="closeLightbox()">
+  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
+  <div class="lightbox-inner" onclick="event.stopPropagation()">
+    <img id="lightboxImg" src="" alt="" />
+    <div class="lightbox-caption">
+      <span id="lightboxName"></span>
+      <a id="lightboxLink" href="#" target="_blank" class="btn btn--small">Open in Drive ↗</a>
+    </div>
+  </div>
+</div>
+
+{% else %}
+<div class="empty-state">
+  <span class="empty-icon">◻</span>
+  <p>No images found in Google Drive.</p>
+  <p class="empty-sub">Configure your Drive folder or <a href="{{ url_for('upload') }}">upload images</a>.</p>
+</div>
+{% endif %}
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function openLightbox(id, name, link) {
+  const lb = document.getElementById('lightbox');
+  const img = document.getElementById('lightboxImg');
+  const nm = document.getElementById('lightboxName');
+  const lk = document.getElementById('lightboxLink');
+  img.src = `https://drive.google.com/thumbnail?id=${id}&sz=w1200`;
+  nm.textContent = name;
+  lk.href = link;
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+function closeLightbox() {
+  document.getElementById('lightbox').classList.remove('active');
+  document.body.style.overflow = '';
+}
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
+// Search
+document.getElementById('gallerySearch')?.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.gallery-item').forEach(item => {
+    item.style.display = item.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

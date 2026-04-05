@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Images | Ministry of Failures{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">පින්තූර <span>Images</span></h1>
+  <p class="page-sub">{{ files|length }} image{{ 's' if files|length != 1 }} from Google Drive</p>
+</div>
+
+{% if files %}
+<div class="gallery-controls">
+  <input type="text" id="imgSearch" class="search-input" placeholder="Search images..." />
+</div>
+<div class="files-grid" id="imgGrid">
+  {% for f in files %}
+  <div class="file-card" data-name="{{ f.name }}">
+    <div class="file-thumb">
+      {% if f.thumbnailLink %}
+      <img src="{{ f.thumbnailLink }}" alt="{{ f.name }}" loading="lazy" />
+      {% else %}
+      <div class="file-thumb-placeholder">🖼</div>
+      {% endif %}
+    </div>
+    <div class="file-info">
+      <span class="file-name" title="{{ f.name }}">{{ f.name }}</span>
+      <a href="{{ f.webViewLink }}" target="_blank" class="btn btn--small">View ↗</a>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="empty-icon">🖼</span>
+  <p>No images in Drive yet.</p>
+  <a href="{{ url_for('upload') }}" class="btn">Upload Images</a>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('imgSearch')?.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.file-card').forEach(c => {
+    c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

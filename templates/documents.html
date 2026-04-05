@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Documents | Ministry of Failures{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">ලේඛන <span>Documents</span></h1>
+  <p class="page-sub">{{ files|length }} PDF{{ 's' if files|length != 1 }} from Google Drive</p>
+</div>
+
+{% if files %}
+<div class="gallery-controls">
+  <input type="text" id="docSearch" class="search-input" placeholder="Search documents..." />
+</div>
+<div class="docs-list" id="docList">
+  {% for f in files %}
+  <div class="doc-row" data-name="{{ f.name }}">
+    <div class="doc-icon">📄</div>
+    <div class="doc-details">
+      <span class="doc-name">{{ f.name }}</span>
+      <span class="doc-date">{{ f.createdTime[:10] if f.createdTime else '' }}</span>
+    </div>
+    <div class="doc-actions">
+      <a href="{{ f.webViewLink }}" target="_blank" class="btn btn--small">View ↗</a>
+      {% if f.webContentLink %}
+      <a href="{{ f.webContentLink }}" class="btn btn--small btn--outline">Download</a>
+      {% endif %}
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="empty-icon">📄</span>
+  <p>No documents in Drive yet.</p>
+  <a href="{{ url_for('upload') }}" class="btn">Upload a Document</a>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('docSearch')?.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.doc-row').forEach(r => {
+    r.style.display = r.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}

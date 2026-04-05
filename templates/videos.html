@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block title %}Videos | Ministry of Failures{% endblock %}
+{% block content %}
+
+<div class="page-header">
+  <h1 class="page-title">වීඩියෝ <span>Videos</span></h1>
+  <p class="page-sub">{{ files|length }} video{{ 's' if files|length != 1 }} from Google Drive</p>
+</div>
+
+{% if files %}
+<div class="gallery-controls">
+  <input type="text" id="vidSearch" class="search-input" placeholder="Search videos..." />
+</div>
+<div class="files-grid files-grid--videos" id="vidGrid">
+  {% for f in files %}
+  <div class="file-card file-card--video" data-name="{{ f.name }}">
+    <a href="{{ f.webViewLink }}" target="_blank" class="video-thumb-link">
+      {% if f.thumbnailLink %}
+      <img src="{{ f.thumbnailLink }}" alt="{{ f.name }}" loading="lazy" />
+      {% else %}
+      <div class="file-thumb-placeholder video-placeholder">▶</div>
+      {% endif %}
+      <div class="play-badge">▶</div>
+    </a>
+    <div class="file-info">
+      <span class="file-name" title="{{ f.name }}">{{ f.name }}</span>
+      <div class="file-actions">
+        <a href="{{ f.webViewLink }}" target="_blank" class="btn btn--small">Watch ↗</a>
+        {% if f.webContentLink %}
+        <a href="{{ f.webContentLink }}" class="btn btn--small btn--outline">Download</a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <span class="empty-icon">▶</span>
+  <p>No videos in Drive yet.</p>
+  <a href="{{ url_for('upload') }}" class="btn">Upload a Video</a>
+</div>
+{% endif %}
+
+{% endblock %}
+{% block extra_js %}
+<script>
+document.getElementById('vidSearch')?.addEventListener('input', function() {
+  const q = this.value.toLowerCase();
+  document.querySelectorAll('.file-card').forEach(c => {
+    c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>
+{% endblock %}
