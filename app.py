@@ -13,10 +13,19 @@ app.secret_key = Config.SECRET_KEY
 # ── Google Drive Service ──────────────────────────────────────────────────────
 def get_drive_service():
     """Build and return an authenticated Google Drive service."""
-    creds = service_account.Credentials.from_service_account_file(
-        Config.SERVICE_ACCOUNT_FILE,
-        scopes=["https://www.googleapis.com/auth/drive"]
-    )
+    creds_info = Config.get_credentials_info()
+    if creds_info:
+        # Running on Render — load from environment variable
+        creds = service_account.Credentials.from_service_account_info(
+            creds_info,
+            scopes=["https://www.googleapis.com/auth/drive"]
+        )
+    else:
+        # Running locally — load from file
+        creds = service_account.Credentials.from_service_account_file(
+            Config.SERVICE_ACCOUNT_FILE,
+            scopes=["https://www.googleapis.com/auth/drive"]
+        )
     return build("drive", "v3", credentials=creds)
 
 
