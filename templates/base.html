@@ -29,7 +29,6 @@
         <a href="{{ url_for('images') }}"     class="nav-link {% if request.endpoint == 'images'    %}active{% endif %}">පින්තූර<br><small>Images</small></a>
         <a href="{{ url_for('videos') }}"     class="nav-link {% if request.endpoint == 'videos'    %}active{% endif %}">වීඩියෝ<br><small>Videos</small></a>
         <a href="{{ url_for('documents') }}"  class="nav-link {% if request.endpoint == 'documents' %}active{% endif %}">ලේඛන<br><small>Docs</small></a>
-        <a href="{{ url_for('upload') }}"     class="nav-link upload-link {% if request.endpoint == 'upload' %}active{% endif %}">↑ Upload</a>
       </nav>
       <button class="nav-toggle" aria-label="Toggle menu">☰</button>
     </div>

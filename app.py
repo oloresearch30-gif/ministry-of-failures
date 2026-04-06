@@ -121,53 +121,6 @@ def gallery():
     return render_template("gallery.html", files=files)
 
 
-@app.route("/upload", methods=["GET", "POST"])
-def upload():
-    """Upload page — users can upload videos, PDFs, images."""
-    if request.method == "POST":
-        if "file" not in request.files:
-            return jsonify({"success": False, "error": "No file provided"}), 400
-
-        file = request.files["file"]
-        if file.filename == "":
-            return jsonify({"success": False, "error": "No file selected"}), 400
-
-        allowed_mimes = {
-            # Videos
-            "video/mp4", "video/avi", "video/quicktime",
-            "video/x-msvideo", "video/webm", "video/mov",
-            # Documents
-            "application/pdf",
-            # Images
-            "image/jpeg", "image/png", "image/gif",
-            "image/webp", "image/svg+xml"
-        }
-
-        mime_type = file.content_type
-        if mime_type not in allowed_mimes:
-            return jsonify({"success": False, "error": f"File type '{mime_type}' not allowed"}), 400
-
-        # Max 500 MB
-        file_bytes = file.read()
-        if len(file_bytes) > 500 * 1024 * 1024:
-            return jsonify({"success": False, "error": "File too large (max 500 MB)"}), 400
-
-        file_io = io.BytesIO(file_bytes)
-        result = upload_to_drive(file_io, file.filename, mime_type)
-
-        if result:
-            return jsonify({
-                "success": True,
-                "name": result.get("name"),
-                "link": result.get("webViewLink"),
-                "id": result.get("id")
-            })
-        else:
-            return jsonify({"success": False, "error": "Upload failed. Check server logs."}), 500
-
-    return render_template("upload.html")
-
-
 # ── API endpoints ─────────────────────────────────────────────────────────────
 
 @app.route("/api/files")
