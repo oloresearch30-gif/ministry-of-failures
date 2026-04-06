@@ -143,3 +143,41 @@ def api_files():
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
+
+
+@app.route("/pdf/page/<int:num>")
+def pdf_page(num):
+    try:
+        import fitz
+        import io
+        pdf_path = os.path.join(app.static_folder, "pdf", "NPP_Failures_size_redue.pdf")
+        if not os.path.exists(pdf_path):
+            return "PDF not found", 404
+        doc = fitz.open(pdf_path)
+        if num < 1 or num > len(doc):
+            return "Page out of range", 404
+        page = doc[num - 1]
+        mat  = fitz.Matrix(1.2, 1.2)
+        pix  = page.get_pixmap(matrix=mat)
+        jpg  = pix.tobytes("jpeg", jpg_quality=75)
+        doc.close()
+        return app.response_class(jpg, mimetype="image/jpeg")
+    except Exception as e:
+        print(f"PDF page error: {e}")
+        return str(e), 500
+
+
+@app.route("/pdf/count")
+def pdf_count():
+    try:
+        import fitz
+        pdf_path = os.path.join(app.static_folder, "pdf", "NPP_Failures_size_redue.pdf")
+        if not os.path.exists(pdf_path):
+            return jsonify({"count": 0})
+        doc = fitz.open(pdf_path)
+        count = len(doc)
+        doc.close()
+        return jsonify({"count": count})
+    except Exception as e:
+        print(f"PDF count error: {e}")
+        return jsonify({"count": 0})
