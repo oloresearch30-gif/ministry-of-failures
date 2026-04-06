@@ -3,32 +3,136 @@
 {% block content %}
 
 <section class="hero">
-  <div class="hero-tape">MINISTRY OF FAILURES — 2025 — NPP ACCOUNTABILITY RECORD — ජනතාවගේ සාක්ෂිය —&nbsp;</div>
-  <div class="hero-body">
-    <div class="hero-label">ශ්‍රී ලංකාව | 2024–2025</div>
-    <h1 class="hero-title">
-      <span class="hero-ministry">MINISTRY</span>
-      <span class="hero-of">of</span>
-      <span class="hero-failures">FAILURES</span>
-    </h1>
-    <p class="hero-sub">වසරක ප්‍රගතියට-පෙරවදනක්</p>
-    <p class="hero-quote">"බලය ලබා ගැනීම සඳහා සංවේදීභාවය සාමූහිකත්වය විවෘතභාවය සාධාරණත්වය බෙදා හදා ගැනීම යන සාධනීය ලකුණු මත කටයුතු කරන්නා බලය ලැබීමෙන් පසු ආචාරශීලීත්වය අත්හරි. ආත්මාර්ථකාමීව සහ අයුක්ති සහගත ලෙස ක්‍රියාකරයි "</p>
-    <cite class="hero-cite">— Prof. Dacher Keltner, University of California, Berkeley</cite>
+  <div class="pdf-fullpage">
+
+  <div class="pdf-topbar">
+    <span class="pdf-title">MINISTRY OF FAILURES — සම්පූර්ණ ලේඛනය</span>
+    <span class="pdf-pageinfo">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
   </div>
-  <div class="hero-counter">
-    <div class="counter-item">
-      <span class="counter-num" data-target="136">0</span>
-      <span class="counter-label">Pages of Evidence</span>
-    </div>
-    <div class="counter-item">
-      <span class="counter-num" data-target="111">0</span>
-      <span class="counter-label">Shootings (2025)</span>
-    </div>
-    <div class="counter-item">
-      <span class="counter-num" data-target="21">0</span>
-      <span class="counter-label">Days as Speaker</span>
-    </div>
+
+  <div class="pdf-viewer" id="fbWrap">
+    <img id="fbImg" src="" alt="" />
+    <div id="fbLoading" class="fb-loading">Loading…</div>
   </div>
+
+  <div class="pdf-controls">
+    <button id="fbPrev" class="fb-btn">← Prev</button>
+    <button id="fbAutoPlay" class="fb-btn fb-btn--play">▶ Auto</button>
+    <button id="fbNext" class="fb-btn">Next →</button>
+    <select id="fbSpeed" class="fb-goto">
+      <option value="4000">Slow (4s)</option>
+      <option value="2000" selected>Normal (2s)</option>
+      <option value="1000">Fast (1s)</option>
+      <option value="500">Very Fast (0.5s)</option>
+    </select>
+    <input type="number" id="fbGoTo" class="fb-goto" min="1" max="136" placeholder="Go to page…" />
+  </div>
+
+  <div class="pdf-thumbs" id="fbThumbs"></div>
+
+</div>
+
+<script>
+(function() {
+  let current = 1, total = 136, flipping = false, autoTimer = null, isPlaying = false;
+  const img = document.getElementById('fbImg');
+  const loading = document.getElementById('fbLoading');
+  const currentEl = document.getElementById('fbCurrent');
+  const totalEl = document.getElementById('fbTotal');
+  const thumbs = document.getElementById('fbThumbs');
+  const autoBtn = document.getElementById('fbAutoPlay');
+  const speedSel = document.getElementById('fbSpeed');
+
+  fetch('/pdf/count').then(r => r.json()).then(d => {
+    total = d.count; totalEl.textContent = total; buildThumbs();
+  });
+
+  function loadPage(num, direction) {
+    if (flipping) return;
+    flipping = true;
+    loading.style.display = 'flex';
+    img.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+    img.style.transform = direction === 'next' ? 'translateX(-40px) scale(0.97)' : direction === 'prev' ? 'translateX(40px) scale(0.97)' : 'none';
+    img.style.opacity = direction ? '0' : '1';
+    setTimeout(() => {
+      const n = new Image();
+      n.onload = () => {
+        img.src = n.src;
+        img.style.transition = 'none';
+        img.style.transform = direction === 'next' ? 'translateX(40px)' : 'translateX(-40px)';
+        img.style.opacity = '0';
+        requestAnimationFrame(() => {
+          img.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+          img.style.transform = 'translateX(0) scale(1)';
+          img.style.opacity = '1';
+          loading.style.display = 'none';
+          currentEl.textContent = num;
+          flipping = false;
+          updateThumbs(num);
+        });
+      };
+      n.onerror = () => { loading.textContent = 'Failed.'; flipping = false; };
+      n.src = `/pdf/page/${num}`;
+    }, direction ? 200 : 0);
+  }
+
+  function updateThumbs(num) {
+    document.querySelectorAll('.fb-thumb').forEach(t => t.classList.remove('active'));
+    const a = document.querySelector(`.fb-thumb[data-page="${num}"]`);
+    if (a) { a.classList.add('active'); a.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+  }
+
+  function buildThumbs() {
+    for (let i = 1; i <= total; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'fb-thumb'; btn.dataset.page = i;
+      btn.innerHTML = `<span>${i}</span>`;
+      btn.addEventListener('click', () => { const d = i > current ? 'next' : 'prev'; current = i; loadPage(i, d); });
+      thumbs.appendChild(btn);
+    }
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !e.target.dataset.loaded) {
+          e.target.dataset.loaded = '1';
+          const ti = new Image();
+          ti.style.cssText = 'width:55px;height:auto;display:block;';
+          ti.src = `/pdf/page/${e.target.dataset.page}`;
+          ti.onload = () => e.target.insertBefore(ti, e.target.querySelector('span'));
+        }
+      });
+    }, { root: thumbs, rootMargin: '0px 300px' });
+    document.querySelectorAll('.fb-thumb').forEach(t => obs.observe(t));
+  }
+
+  function startAuto() {
+    isPlaying = true; autoBtn.textContent = '⏸ Pause'; autoBtn.classList.add('active');
+    autoTimer = setInterval(() => { current = current >= total ? 1 : current + 1; loadPage(current, 'next'); }, parseInt(speedSel.value));
+  }
+  function stopAuto() {
+    isPlaying = false; clearInterval(autoTimer); autoTimer = null;
+    autoBtn.textContent = '▶ Auto'; autoBtn.classList.remove('active');
+  }
+
+  autoBtn.addEventListener('click', () => isPlaying ? stopAuto() : startAuto());
+  speedSel.addEventListener('change', () => { if (isPlaying) { stopAuto(); startAuto(); } });
+  document.getElementById('fbPrev').addEventListener('click', () => { if (current > 1 && !flipping) { stopAuto(); current--; loadPage(current, 'prev'); } });
+  document.getElementById('fbNext').addEventListener('click', () => { if (current < total && !flipping) { stopAuto(); current++; loadPage(current, 'next'); } });
+  document.getElementById('fbGoTo').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const p = parseInt(this.value);
+      if (p >= 1 && p <= total) { stopAuto(); const d = p > current ? 'next' : 'prev'; current = p; loadPage(p, d); this.value = ''; }
+    }
+  });
+  document.addEventListener('keydown', e => {
+    if (document.activeElement.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' && !flipping) { stopAuto(); current = Math.min(current+1, total); loadPage(current, 'next'); }
+    if (e.key === 'ArrowLeft'  && !flipping) { stopAuto(); current = Math.max(current-1, 1);     loadPage(current, 'prev'); }
+    if (e.key === ' ') { e.preventDefault(); isPlaying ? stopAuto() : startAuto(); }
+  });
+
+  loadPage(1, null);
+})();
+</script>
 </section>
 
 <!-- ── Index Sections ───────────────────────────────────────────────────── -->
