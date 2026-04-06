@@ -2,8 +2,7 @@
 {% block title %}දර්ශකය | Ministry of Failures{% endblock %}
 {% block content %}
 
-<section class="hero">
-  <div class="pdf-fullpage">
+<div class="pdf-fullpage">
 
   <div class="pdf-topbar">
     <span class="pdf-title">MINISTRY OF FAILURES — සම්පූර්ණ ලේඛනය</span>
@@ -32,16 +31,42 @@
 
 </div>
 
+<section class="quick-access">
+  <h2 class="qa-title">සාක්ෂි ගෙනහැර බලන්න</h2>
+  <div class="qa-grid">
+    <a href="{{ url_for('gallery') }}" class="qa-card qa-card--gallery">
+      <span class="qa-icon">⊞</span>
+      <span class="qa-label">Gallery</span>
+      <span class="qa-sub">ගැලරිය</span>
+    </a>
+    <a href="{{ url_for('images') }}" class="qa-card qa-card--images">
+      <span class="qa-icon">◻</span>
+      <span class="qa-label">Images</span>
+      <span class="qa-sub">පින්තූර</span>
+    </a>
+    <a href="{{ url_for('videos') }}" class="qa-card qa-card--videos">
+      <span class="qa-icon">▶</span>
+      <span class="qa-label">Videos</span>
+      <span class="qa-sub">වීඩියෝ</span>
+    </a>
+    <a href="{{ url_for('documents') }}" class="qa-card qa-card--docs">
+      <span class="qa-icon">⊠</span>
+      <span class="qa-label">Documents</span>
+      <span class="qa-sub">ලේඛන</span>
+    </a>
+  </div>
+</section>
+
 <script>
 (function() {
   let current = 1, total = 136, flipping = false, autoTimer = null, isPlaying = false;
-  const img = document.getElementById('fbImg');
-  const loading = document.getElementById('fbLoading');
+  const img       = document.getElementById('fbImg');
+  const loading   = document.getElementById('fbLoading');
   const currentEl = document.getElementById('fbCurrent');
-  const totalEl = document.getElementById('fbTotal');
-  const thumbs = document.getElementById('fbThumbs');
-  const autoBtn = document.getElementById('fbAutoPlay');
-  const speedSel = document.getElementById('fbSpeed');
+  const totalEl   = document.getElementById('fbTotal');
+  const thumbs    = document.getElementById('fbThumbs');
+  const autoBtn   = document.getElementById('fbAutoPlay');
+  const speedSel  = document.getElementById('fbSpeed');
 
   fetch('/pdf/count').then(r => r.json()).then(d => {
     total = d.count; totalEl.textContent = total; buildThumbs();
@@ -52,26 +77,26 @@
     flipping = true;
     loading.style.display = 'flex';
     img.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
-    img.style.transform = direction === 'next' ? 'translateX(-40px) scale(0.97)' : direction === 'prev' ? 'translateX(40px) scale(0.97)' : 'none';
-    img.style.opacity = direction ? '0' : '1';
+    img.style.transform  = direction === 'next' ? 'translateX(-40px) scale(0.97)' : direction === 'prev' ? 'translateX(40px) scale(0.97)' : 'none';
+    img.style.opacity    = direction ? '0' : '1';
     setTimeout(() => {
       const n = new Image();
       n.onload = () => {
         img.src = n.src;
         img.style.transition = 'none';
-        img.style.transform = direction === 'next' ? 'translateX(40px)' : 'translateX(-40px)';
-        img.style.opacity = '0';
+        img.style.transform  = direction === 'next' ? 'translateX(40px)' : 'translateX(-40px)';
+        img.style.opacity    = '0';
         requestAnimationFrame(() => {
           img.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
-          img.style.transform = 'translateX(0) scale(1)';
-          img.style.opacity = '1';
+          img.style.transform  = 'translateX(0) scale(1)';
+          img.style.opacity    = '1';
           loading.style.display = 'none';
           currentEl.textContent = num;
           flipping = false;
           updateThumbs(num);
         });
       };
-      n.onerror = () => { loading.textContent = 'Failed.'; flipping = false; };
+      n.onerror = () => { loading.textContent = 'Failed to load page.'; flipping = false; };
       n.src = `/pdf/page/${num}`;
     }, direction ? 200 : 0);
   }
@@ -87,7 +112,10 @@
       const btn = document.createElement('button');
       btn.className = 'fb-thumb'; btn.dataset.page = i;
       btn.innerHTML = `<span>${i}</span>`;
-      btn.addEventListener('click', () => { const d = i > current ? 'next' : 'prev'; current = i; loadPage(i, d); });
+      btn.addEventListener('click', () => {
+        const d = i > current ? 'next' : 'prev';
+        current = i; loadPage(i, d);
+      });
       thumbs.appendChild(btn);
     }
     const obs = new IntersectionObserver(entries => {
@@ -106,8 +134,12 @@
 
   function startAuto() {
     isPlaying = true; autoBtn.textContent = '⏸ Pause'; autoBtn.classList.add('active');
-    autoTimer = setInterval(() => { current = current >= total ? 1 : current + 1; loadPage(current, 'next'); }, parseInt(speedSel.value));
+    autoTimer = setInterval(() => {
+      current = current >= total ? 1 : current + 1;
+      loadPage(current, 'next');
+    }, parseInt(speedSel.value));
   }
+
   function stopAuto() {
     isPlaying = false; clearInterval(autoTimer); autoTimer = null;
     autoBtn.textContent = '▶ Auto'; autoBtn.classList.remove('active');
@@ -115,14 +147,24 @@
 
   autoBtn.addEventListener('click', () => isPlaying ? stopAuto() : startAuto());
   speedSel.addEventListener('change', () => { if (isPlaying) { stopAuto(); startAuto(); } });
-  document.getElementById('fbPrev').addEventListener('click', () => { if (current > 1 && !flipping) { stopAuto(); current--; loadPage(current, 'prev'); } });
-  document.getElementById('fbNext').addEventListener('click', () => { if (current < total && !flipping) { stopAuto(); current++; loadPage(current, 'next'); } });
+
+  document.getElementById('fbPrev').addEventListener('click', () => {
+    if (current > 1 && !flipping) { stopAuto(); current--; loadPage(current, 'prev'); }
+  });
+  document.getElementById('fbNext').addEventListener('click', () => {
+    if (current < total && !flipping) { stopAuto(); current++; loadPage(current, 'next'); }
+  });
   document.getElementById('fbGoTo').addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
       const p = parseInt(this.value);
-      if (p >= 1 && p <= total) { stopAuto(); const d = p > current ? 'next' : 'prev'; current = p; loadPage(p, d); this.value = ''; }
+      if (p >= 1 && p <= total) {
+        stopAuto();
+        const d = p > current ? 'next' : 'prev';
+        current = p; loadPage(p, d); this.value = '';
+      }
     }
   });
+
   document.addEventListener('keydown', e => {
     if (document.activeElement.tagName === 'INPUT') return;
     if (e.key === 'ArrowRight' && !flipping) { stopAuto(); current = Math.min(current+1, total); loadPage(current, 'next'); }
@@ -133,7 +175,8 @@
   loadPage(1, null);
 })();
 </script>
-</section>
+
+
 
 <!-- ── Index Sections ───────────────────────────────────────────────────── -->
 <section class="index-section">
@@ -1027,3 +1070,4 @@
   </div>
 </section>
 
+{% endblock %}
