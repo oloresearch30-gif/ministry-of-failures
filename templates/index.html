@@ -947,103 +947,172 @@
     </div>
 
     <div class="flipbook-thumbnails" id="fbThumbs"></div>
+    
+    <button id="fbPrev" class="fb-btn">← Prev</button>
+  <span class="fb-page-info">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
+  <button id="fbNext" class="fb-btn">Next →</button>
+  <button id="fbAutoPlay" class="fb-btn fb-btn--play">▶ Auto</button>
+  <select id="fbSpeed" class="fb-goto">
+    <option value="3000">Slow (3s)</option>
+    <option value="2000" selected>Normal (2s)</option>
+    <option value="1000">Fast (1s)</option>
+    <option value="500">Very Fast (0.5s)</option>
+  </select>
+  <input type="number" id="fbGoTo" class="fb-goto" min="1" max="136" placeholder="Go to page…" />
   </div>
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
 (function() {
-  const PDF_URL = "{{ url_for('static', filename='pdf/NPP_Failures_size_redue.pdf') }}";
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+  let current  = 1;
+  let total    = 136;
+  let flipping = false;
+  let autoTimer = null;
+  let isPlaying = false;
 
-  let pdfDoc = null;
-  let currentPage = 1;
-  let rendering = false;
+  const img       = document.getElementById('fbImg');
+  const loading   = document.getElementById('fbLoading');
+  const currentEl = document.getElementById('fbCurrent');
+  const totalEl   = document.getElementById('fbTotal');
+  const thumbs    = document.getElementById('fbThumbs');
+  const autoBtn   = document.getElementById('fbAutoPlay');
+  const speedSel  = document.getElementById('fbSpeed');
 
-  const canvas   = document.getElementById('fbCanvas');
-  const ctx      = canvas.getContext('2d');
-  const loading  = document.getElementById('fbLoading');
-  const total    = document.getElementById('fbTotal');
-  const current  = document.getElementById('fbCurrent');
-  const thumbs   = document.getElementById('fbThumbs');
+  fetch('/pdf/count').then(r => r.json()).then(d => {
+    total = d.count;
+    totalEl.textContent = total;
+    buildThumbs();
+  });
 
-  async function renderPage(num) {
-    if (rendering) return;
-    rendering = true;
+  function loadPage(num, direction) {
+    if (flipping) return;
+    flipping = true;
     loading.style.display = 'flex';
 
-    const page = await pdfDoc.getPage(num);
-    const viewport = page.getViewport({ scale: 1.6 });
-    canvas.width  = viewport.width;
-    canvas.height = viewport.height;
+    img.style.transition = 'transform 0.2s ease, opacity 0.2s ease';
+    img.style.transform  = direction === 'next' ? 'translateX(-30px) scale(0.97)' : 'translateX(30px) scale(0.97)';
+    img.style.opacity    = '0';
 
-    await page.render({ canvasContext: ctx, viewport }).promise;
-    loading.style.display = 'none';
-    current.textContent = num;
-    rendering = false;
+    setTimeout(() => {
+      const newImg = new Image();
+      newImg.onload = () => {
+        img.src = newImg.src;
+        img.style.transition = 'none';
+        img.style.transform  = direction === 'next' ? 'translateX(30px)' : 'translateX(-30px)';
+        img.style.opacity    = '0';
+        requestAnimationFrame(() => {
+          img.style.transition = 'transform 0.25s ease, opacity 0.25s ease';
+          img.style.transform  = 'translateX(0) scale(1)';
+          img.style.opacity    = '1';
+          loading.style.display = 'none';
+          currentEl.textContent = num;
+          flipping = false;
+          updateThumbs(num);
+        });
+      };
+      newImg.onerror = () => { loading.textContent = 'Failed.'; flipping = false; };
+      newImg.src = `/pdf/page/${num}`;
+    }, 200);
+  }
 
-    // Highlight active thumb
+  function updateThumbs(num) {
     document.querySelectorAll('.fb-thumb').forEach(t => t.classList.remove('active'));
-    const activeThumb = document.querySelector(`.fb-thumb[data-page="${num}"]`);
-    if (activeThumb) {
-      activeThumb.classList.add('active');
-      activeThumb.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-    }
+    const active = document.querySelector(`.fb-thumb[data-page="${num}"]`);
+    if (active) active.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
   }
 
-  async function renderThumb(num) {
-    const page = await pdfDoc.getPage(num);
-    const viewport = page.getViewport({ scale: 0.18 });
-    const c = document.createElement('canvas');
-    c.width  = viewport.width;
-    c.height = viewport.height;
-    await page.render({ canvasContext: c.getContext('2d'), viewport }).promise;
-
-    const btn = document.createElement('button');
-    btn.className = 'fb-thumb';
-    btn.dataset.page = num;
-    btn.title = `Page ${num}`;
-    btn.appendChild(c);
-
-    const label = document.createElement('span');
-    label.textContent = num;
-    btn.appendChild(label);
-
-    btn.addEventListener('click', () => { currentPage = num; renderPage(num); });
-    thumbs.appendChild(btn);
+  function buildThumbs() {
+    for (let i = 1; i <= total; i++) {
+      const btn = document.createElement('button');
+      btn.className = 'fb-thumb';
+      btn.dataset.page = i;
+      btn.dataset.src  = `/pdf/page/${i}`;
+      btn.innerHTML    = `<span>${i}</span>`;
+      btn.addEventListener('click', () => {
+        const dir = i > current ? 'next' : 'prev';
+        current = i;
+        loadPage(i, dir);
+      });
+      thumbs.appendChild(btn);
+    }
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => {
+        if (e.isIntersecting && !e.target.dataset.loaded) {
+          e.target.dataset.loaded = '1';
+          const tImg = new Image();
+          tImg.style.cssText = 'width:60px;height:auto;display:block;';
+          tImg.src = e.target.dataset.src;
+          tImg.onload = () => e.target.insertBefore(tImg, e.target.querySelector('span'));
+        }
+      });
+    }, { root: thumbs, rootMargin: '0px 200px' });
+    document.querySelectorAll('.fb-thumb').forEach(t => obs.observe(t));
   }
 
-  pdfjsLib.getDocument(PDF_URL).promise.then(async doc => {
-    pdfDoc = doc;
-    total.textContent = doc.numPages;
-    renderPage(currentPage);
+  // ── Auto play ─────────────────────────────────────────
+  function startAuto() {
+    isPlaying = true;
+    autoBtn.textContent = '⏸ Pause';
+    autoBtn.classList.add('active');
+    const speed = parseInt(speedSel.value);
+    autoTimer = setInterval(() => {
+      if (current >= total) {
+        // Loop back to page 1
+        current = 1;
+        loadPage(current, 'next');
+      } else {
+        current++;
+        loadPage(current, 'next');
+      }
+    }, speed);
+  }
 
-    // Render thumbnails (batch to avoid blocking)
-    for (let i = 1; i <= doc.numPages; i++) {
-      await renderThumb(i);
-    }
-  }).catch(err => {
-    loading.textContent = 'Failed to load PDF.';
-    console.error(err);
+  function stopAuto() {
+    isPlaying = false;
+    clearInterval(autoTimer);
+    autoTimer = null;
+    autoBtn.textContent = '▶ Auto';
+    autoBtn.classList.remove('active');
+  }
+
+  autoBtn.addEventListener('click', () => {
+    isPlaying ? stopAuto() : startAuto();
   });
 
+  // Speed change restarts auto if playing
+  speedSel.addEventListener('change', () => {
+    if (isPlaying) { stopAuto(); startAuto(); }
+  });
+
+  // ── Controls ──────────────────────────────────────────
   document.getElementById('fbPrev').addEventListener('click', () => {
-    if (currentPage > 1) { currentPage--; renderPage(currentPage); }
+    if (current > 1 && !flipping) { stopAuto(); current--; loadPage(current, 'prev'); }
   });
   document.getElementById('fbNext').addEventListener('click', () => {
-    if (currentPage < pdfDoc.numPages) { currentPage++; renderPage(currentPage); }
+    if (current < total && !flipping) { stopAuto(); current++; loadPage(current, 'next'); }
   });
-  document.getElementById('fbGoTo').addEventListener('change', function() {
-    const p = parseInt(this.value);
-    if (p >= 1 && p <= pdfDoc.numPages) { currentPage = p; renderPage(p); this.value = ''; }
+  document.getElementById('fbGoTo').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+      const p = parseInt(this.value);
+      if (p >= 1 && p <= total) {
+        stopAuto();
+        const dir = p > current ? 'next' : 'prev';
+        current = p;
+        loadPage(p, dir);
+        this.value = '';
+      }
+    }
   });
 
-  // Keyboard arrows
   document.addEventListener('keydown', e => {
-    if (e.key === 'ArrowRight' && currentPage < (pdfDoc?.numPages || 1)) { currentPage++; renderPage(currentPage); }
-    if (e.key === 'ArrowLeft'  && currentPage > 1) { currentPage--; renderPage(currentPage); }
+    if (document.activeElement.tagName === 'INPUT') return;
+    if (e.key === 'ArrowRight' && current < total && !flipping) { stopAuto(); current++; loadPage(current, 'next'); }
+    if (e.key === 'ArrowLeft'  && current > 1     && !flipping) { stopAuto(); current--; loadPage(current, 'prev'); }
+    if (e.key === ' ') { e.preventDefault(); isPlaying ? stopAuto() : startAuto(); }
   });
+
+  loadPage(1, null);
 })();
 </script>
 

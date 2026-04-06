@@ -968,6 +968,11 @@ img { max-width: 100%; display: block; }
   color: var(--dim);
 }
 
+/* ── Auto play button ───────────────────────────────────── */
+.fb-btn--play { border-color: var(--gold); color: var(--gold); }
+.fb-btn--play:hover { border-color: var(--amber); color: var(--amber); }
+.fb-btn--play.active { background: var(--red); border-color: var(--red); color: var(--white); }
+
 /* ══════════════════════════════════════════════════════════
    RESPONSIVE — Mobile / Tablet / Laptop / Desktop / Smart TV
    ══════════════════════════════════════════════════════════ */
