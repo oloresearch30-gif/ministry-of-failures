@@ -10,22 +10,22 @@
   </div>
 
   <div class="pdf-viewer" id="fbWrap">
-    <img id="fbImg" src="" alt="" />
-    <div id="fbLoading" class="fb-loading">Loading…</div>
-  </div>
+  <button class="pdf-side-btn pdf-side-btn--left" id="fbPrev">&#8249;</button>
+  <img id="fbImg" src="" alt="" />
+  <div id="fbLoading" class="fb-loading">Loading…</div>
+  <button class="pdf-side-btn pdf-side-btn--right" id="fbNext">&#8250;</button>
+</div>
 
-  <div class="pdf-controls">
-    <button id="fbPrev" class="fb-btn">← Prev</button>
-    <button id="fbAutoPlay" class="fb-btn fb-btn--play">▶ Auto</button>
-    <button id="fbNext" class="fb-btn">Next →</button>
-    <select id="fbSpeed" class="fb-goto">
-      <option value="4000">Slow (4s)</option>
-      <option value="2000" selected>Normal (2s)</option>
-      <option value="1000">Fast (1s)</option>
-      <option value="500">Very Fast (0.5s)</option>
-    </select>
-    <input type="number" id="fbGoTo" class="fb-goto" min="1" max="136" placeholder="Go to page…" />
-  </div>
+ <div class="pdf-controls">
+  <button id="fbAutoPlay" class="fb-btn fb-btn--play">▶ Auto</button>
+  <select id="fbSpeed" class="fb-goto">
+    <option value="4000">Slow (4s)</option>
+    <option value="2000" selected>Normal (2s)</option>
+    <option value="1000">Fast (1s)</option>
+    <option value="500">Very Fast (0.5s)</option>
+  </select>
+  <input type="number" id="fbGoTo" class="fb-goto" min="1" max="136" placeholder="Go to page…" />
+</div>
 
   <div class="pdf-thumbs" id="fbThumbs"></div>
 

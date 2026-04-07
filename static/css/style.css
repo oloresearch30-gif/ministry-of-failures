@@ -1327,3 +1327,36 @@ img { max-width: 100%; display: block; }
   .fb-btn { font-size: 0.65rem; padding: 0.4rem 0.6rem; }
   .pdf-thumbs { max-height: 90px; }
 }
+
+/* ── PDF side arrow buttons ─────────────────────────────── */
+.pdf-side-btn {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background: rgba(200, 0, 10, 0.15);
+  border: 2px solid var(--red);
+  color: var(--red);
+  font-size: 4rem;
+  line-height: 1;
+  width: 60px;
+  height: 100px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.pdf-side-btn:hover {
+  background: rgba(200, 0, 10, 0.4);
+  color: var(--white);
+}
+.pdf-side-btn--left  { left: 1rem; }
+.pdf-side-btn--right { right: 1rem; }
+
+@media (max-width: 599px) {
+  .pdf-side-btn { width: 40px; height: 70px; font-size: 2.5rem; }
+  .pdf-side-btn--left  { left: 0.25rem; }
+  .pdf-side-btn--right { right: 0.25rem; }
+}
