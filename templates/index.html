@@ -78,7 +78,11 @@
   function updateThumbs(num) {
     document.querySelectorAll('.fb-thumb').forEach(t => t.classList.remove('active'));
     const a = document.querySelector(`.fb-thumb[data-page="${num}"]`);
-    if (a) { a.classList.add('active'); a.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    if (a) {
+      a.classList.add('active');
+      const container = document.getElementById('fbThumbs');
+      container.scrollLeft = a.offsetLeft - container.offsetWidth / 2 + a.offsetWidth / 2;
+    }
   }
 
   function buildThumbs() {
