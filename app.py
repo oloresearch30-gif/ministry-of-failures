@@ -148,22 +148,20 @@ if __name__ == "__main__":
 @app.route("/pdf/page/<int:num>")
 def pdf_page(num):
     try:
-        import fitz
-        import io
+        import fitz, io
         pdf_path = os.path.join(app.static_folder, "pdf", "NPP_Failures_size_redue.pdf")
-        if not os.path.exists(pdf_path):
-            return "PDF not found", 404
+        if not os.path.exists(pdf_path): return "PDF not found", 404
         doc = fitz.open(pdf_path)
-        if num < 1 or num > len(doc):
-            return "Page out of range", 404
+        if num < 1 or num > len(doc): return "Page out of range", 404
         page = doc[num - 1]
         mat  = fitz.Matrix(1.2, 1.2)
         pix  = page.get_pixmap(matrix=mat)
         jpg  = pix.tobytes("jpeg", jpg_quality=75)
         doc.close()
-        return app.response_class(jpg, mimetype="image/jpeg")
+        response = app.response_class(jpg, mimetype="image/jpeg")
+        response.headers['Cache-Control'] = 'public, max-age=86400'
+        return response
     except Exception as e:
-        print(f"PDF page error: {e}")
         return str(e), 500
 
 
