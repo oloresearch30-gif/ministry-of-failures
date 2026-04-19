@@ -54,7 +54,6 @@ def init_admin(app):
     admin = Admin(
         app,
         name='Ministry of Failures — Admin',
-        template_mode='bootstrap4',
         index_view=SecureAdminIndexView()
     )
     admin.add_view(IndexCardView(IndexCard, db.session, name='Index Cards', category='Content'))
