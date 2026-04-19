@@ -174,15 +174,20 @@
   {% for card in cards %}
   <div class="index-header">
     <span class="index-number">{{ card.number }}</span>
-    <h2 class="index-title">{{ card.title_si }}</h2>
-    <span class="index-en">{{ card.title_en }}</span>
+    <h2 class="index-title">{{ card.get('titleSi', '') }}</h2>
+    <span class="index-en">{{ card.get('titleEn', '') }}</span>
   </div>
   <div class="index-body">
-    {{ card.body | safe }}
-    {% if card.tags %}
+    <p>{{ card.get('body', '') }}</p>
+    {% if card.get('image') %}
+    <img src="https://cdn.sanity.io/images/31sea43n/production/{{ card['image']['asset']['_ref'].replace('image-','').replace('-jpg','.jpg').replace('-png','.png').replace('-webp','.webp') }}"
+         onclick="openLightbox(this.src)"
+         style="max-width:100%;cursor:pointer;border:1px solid #2a2a2a;margin-top:0.5rem;" />
+    {% endif %}
+    {% if card.get('tags') %}
     <div class="index-tags">
-      {% for tag in card.tags.split(',') %}
-      <span class="tag {% if card.tag_type %}tag--{{ card.tag_type }}{% endif %}">{{ tag.strip() }}</span>
+      {% for tag in card['tags'].split(',') %}
+      <span class="tag {% if card.get('tagType') %}tag--{{ card['tagType'] }}{% endif %}">{{ tag.strip() }}</span>
       {% endfor %}
     </div>
     {% endif %}

@@ -115,8 +115,16 @@ def upload_to_drive(file_obj, filename, mime_type, folder_id=None):
 
 @app.route('/')
 def index():
-    from models import IndexCard
-    cards = IndexCard.query.filter_by(active=True).order_by(IndexCard.number).all()
+    import requests
+    try:
+        query = '*[_type == "indexCard" && active == true] | order(number asc)'
+        url = f"https://{os.environ.get('SANITY_PROJECT_ID')}.api.sanity.io/v2021-10-21/data/query/{os.environ.get('SANITY_DATASET', 'production')}?query={requests.utils.quote(query)}"
+        headers = {'Authorization': f"Bearer {os.environ.get('SANITY_TOKEN')}"}
+        res = requests.get(url, headers=headers)
+        cards = res.json().get('result', [])
+    except Exception as e:
+        print(f"Sanity error: {e}")
+        cards = []
     return render_template('index.html', cards=cards)
 
 
