@@ -1,4 +1,4 @@
 credentials/
 __pycache__/
 *.pyc
-.env
+.envsanity-studio/ 
