@@ -169,6 +169,28 @@
 })();
 </script>
 
+{% if cards %}
+<section class="index-section">
+  {% for card in cards %}
+  <div class="index-header">
+    <span class="index-number">{{ card.number }}</span>
+    <h2 class="index-title">{{ card.title_si }}</h2>
+    <span class="index-en">{{ card.title_en }}</span>
+  </div>
+  <div class="index-body">
+    {{ card.body | safe }}
+    {% if card.tags %}
+    <div class="index-tags">
+      {% for tag in card.tags.split(',') %}
+      <span class="tag {% if card.tag_type %}tag--{{ card.tag_type }}{% endif %}">{{ tag.strip() }}</span>
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
 <!-- ── Quick Access ──────────────────────────────────────────────────────── -->
 <section class="quick-access">
   <h2 class="qa-title">සාක්ෂි ගෙනහැර බලන්න</h2>

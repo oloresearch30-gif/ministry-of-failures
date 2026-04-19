@@ -44,7 +44,7 @@ with app.app_context():
         db.session.add(superadmin)
         db.session.commit()
         print("✅ Default superadmin created: admin / Admin@2025!")
-        
+
 # ── Google Drive Service ──────────────────────────────────────────────────────
 def get_drive_service():
     """Build and return an authenticated Google Drive service."""
@@ -113,10 +113,11 @@ def upload_to_drive(file_obj, filename, mime_type, folder_id=None):
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
-@app.route("/")
+@app.route('/')
 def index():
-    """Landing page — the indexed overview from the PDF."""
-    return render_template("index.html")
+    from models import IndexCard
+    cards = IndexCard.query.filter_by(active=True).order_by(IndexCard.number).all()
+    return render_template('index.html', cards=cards)
 
 
 @app.route("/videos")
