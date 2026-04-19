@@ -9,20 +9,13 @@
     <span class="pdf-pageinfo">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
   </div>
 
-  <div class="pdf-book-wrap" id="fbWrap">
-    <button class="pdf-side-btn pdf-side-btn--left" id="fbPrev">&#8249;</button>
-
-    <div class="pdf-book" id="fbBook">
-      <div class="pdf-page pdf-page--back" id="fbPageBack">
-        <img id="fbImgBack" src="" alt="" />
-      </div>
-      <div class="pdf-page pdf-page--front" id="fbPageFront">
-        <img id="fbImgFront" src="" alt="" />
-        <div id="fbLoading" class="fb-loading">Loading…</div>
-      </div>
+  <div class="pdf-viewer" id="fbViewer">
+    <div id="fbLoading" class="fb-loading">Loading…</div>
+    <div class="pdf-flip-wrap" id="fbFlipWrap">
+      <img id="fbImgBack" class="pdf-img pdf-img--back" src="" alt="" />
+      <img id="fbImgFront" class="pdf-img pdf-img--front" src="" alt="" />
     </div>
-
-    <button class="pdf-side-btn pdf-side-btn--right" id="fbNext">&#8250;</button>
+    <div class="pdf-hint">← swipe or tap edges →</div>
   </div>
 
   <div class="pdf-thumbs" id="fbThumbs"></div>
@@ -46,54 +39,58 @@
 
 <script>
 (function() {
-  let current = 1, total = 136, flipping = false, autoTimer = null, isPlaying = false;
+  let current = 1, total = 136, flipping = false;
   const imgFront  = document.getElementById('fbImgFront');
   const imgBack   = document.getElementById('fbImgBack');
   const loading   = document.getElementById('fbLoading');
   const currentEl = document.getElementById('fbCurrent');
   const totalEl   = document.getElementById('fbTotal');
   const thumbs    = document.getElementById('fbThumbs');
-  const book      = document.getElementById('fbBook');
+  const wrap      = document.getElementById('fbFlipWrap');
+  const viewer    = document.getElementById('fbViewer');
 
   fetch('/pdf/count').then(r => r.json()).then(d => {
     total = d.count; totalEl.textContent = total; buildThumbs();
   });
 
-  function preloadImg(num, callback) {
+  function preload(num, cb) {
     const n = new Image();
-    n.onload = () => callback(n.src);
-    n.onerror = () => callback(null);
+    n.onload = () => cb(n.src);
+    n.onerror = () => cb(null);
     n.src = `/pdf/page/${num}`;
   }
 
-  function flipPage(num, direction) {
-    if (flipping) return;
+  function goTo(num, dir) {
+    if (flipping || num < 1 || num > total) return;
     flipping = true;
     loading.style.display = 'flex';
 
-    preloadImg(num, (src) => {
+    preload(num, (src) => {
       if (!src) { loading.style.display = 'none'; flipping = false; return; }
 
-      if (direction === 'next') {
+      if (dir === 'next') {
         imgBack.src = imgFront.src;
         imgFront.src = src;
-        book.classList.remove('flip-prev');
-        book.classList.add('flip-next');
+        wrap.classList.remove('flip-prev');
+        void wrap.offsetWidth;
+        wrap.classList.add('flip-next');
       } else {
         imgBack.src = src;
-        book.classList.remove('flip-next');
-        book.classList.add('flip-prev');
-        setTimeout(() => { imgFront.src = src; }, 300);
+        wrap.classList.remove('flip-next');
+        void wrap.offsetWidth;
+        wrap.classList.add('flip-prev');
+        setTimeout(() => { imgFront.src = src; }, 350);
       }
 
       loading.style.display = 'none';
       currentEl.textContent = num;
+      current = num;
 
       setTimeout(() => {
-        book.classList.remove('flip-next', 'flip-prev');
+        wrap.classList.remove('flip-next', 'flip-prev');
         flipping = false;
         updateThumbs(num);
-      }, 600);
+      }, 700);
     });
   }
 
@@ -102,8 +99,7 @@
     const a = document.querySelector(`.fb-thumb[data-page="${num}"]`);
     if (a) {
       a.classList.add('active');
-      const container = document.getElementById('fbThumbs');
-      container.scrollLeft = a.offsetLeft - container.offsetWidth / 2 + a.offsetWidth / 2;
+      thumbs.scrollLeft = a.offsetLeft - thumbs.offsetWidth / 2 + a.offsetWidth / 2;
     }
   }
 
@@ -112,10 +108,7 @@
       const btn = document.createElement('button');
       btn.className = 'fb-thumb'; btn.dataset.page = i;
       btn.innerHTML = `<span>${i}</span>`;
-      btn.addEventListener('click', () => {
-        const d = i > current ? 'next' : 'prev';
-        current = i; flipPage(i, d);
-      });
+      btn.addEventListener('click', () => goTo(i, i > current ? 'next' : 'prev'));
       thumbs.appendChild(btn);
     }
     const obs = new IntersectionObserver(entries => {
@@ -132,20 +125,36 @@
     document.querySelectorAll('.fb-thumb').forEach(t => obs.observe(t));
   }
 
-  document.getElementById('fbPrev').addEventListener('click', () => {
-    if (current > 1 && !flipping) { current--; flipPage(current, 'prev'); }
-  });
-  document.getElementById('fbNext').addEventListener('click', () => {
-    if (current < total && !flipping) { current++; flipPage(current, 'next'); }
+  /* ── Click left/right half ── */
+  viewer.addEventListener('click', (e) => {
+    const rect = viewer.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    if (x < rect.width / 2) {
+      if (current > 1) goTo(current - 1, 'prev');
+    } else {
+      if (current < total) goTo(current + 1, 'next');
+    }
   });
 
+  /* ── Touch swipe ── */
+  let touchX = 0;
+  viewer.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+  viewer.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - touchX;
+    if (Math.abs(dx) > 50) {
+      if (dx < 0 && current < total) goTo(current + 1, 'next');
+      if (dx > 0 && current > 1)     goTo(current - 1, 'prev');
+    }
+  });
+
+  /* ── Keyboard ── */
   document.addEventListener('keydown', e => {
     if (document.activeElement.tagName === 'INPUT') return;
-    if (e.key === 'ArrowRight' && !flipping) { current = Math.min(current+1, total); flipPage(current, 'next'); }
-    if (e.key === 'ArrowLeft'  && !flipping) { current = Math.max(current-1, 1);     flipPage(current, 'prev'); }
+    if (e.key === 'ArrowRight') goTo(current + 1, 'next');
+    if (e.key === 'ArrowLeft')  goTo(current - 1, 'prev');
   });
 
-  preloadImg(1, (src) => { if (src) imgFront.src = src; loading.style.display = 'none'; });
+  preload(1, src => { if (src) { imgFront.src = src; } loading.style.display = 'none'; });
 })();
 </script>
 
