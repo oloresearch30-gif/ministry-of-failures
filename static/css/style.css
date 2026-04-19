@@ -1451,11 +1451,27 @@ body {
 
 .quick-access {
   width: 100%;
-  overflow: hidden;
+  padding: 3rem 1.5rem;
+  background: var(--mid);
+  border-top: 1px solid var(--border);
+  text-align: center;
+}
+
+.qa-title {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  text-align: center;
+  letter-spacing: 0.05em;
+  margin-bottom: 2rem;
+  color: var(--silver);
 }
 
 .qa-grid {
+  display: flex;
+  gap: 1rem;
   max-width: 800px;
   margin: 0 auto;
+  flex-wrap: wrap;
   justify-content: center;
+  align-items: center;
 }
