@@ -168,9 +168,10 @@ def gallery():
 def debug_sanity():
     import requests
     query = '*[_type == "indexCard"]'
-    url = f"https://{os.environ.get('SANITY_PROJECT_ID')}.api.sanity.io/v2021-10-21/data/query/{os.environ.get('SANITY_DATASET', 'production')}?query={requests.utils.quote(query)}"
-    headers = {'Authorization': f"Bearer {os.environ.get('SANITY_TOKEN')}"}
-    res = requests.get(url, headers=headers)
+    project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
+    dataset = os.environ.get('SANITY_DATASET', 'production')
+    url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={requests.utils.quote(query)}"
+    res = requests.get(url)
     return res.text
 # ── API endpoints ─────────────────────────────────────────────────────────────
 
