@@ -164,7 +164,14 @@ def gallery():
     ])
     return render_template("gallery.html", files=files)
 
-
+@app.route('/debug-sanity')
+def debug_sanity():
+    import requests
+    query = '*[_type == "indexCard"]'
+    url = f"https://{os.environ.get('SANITY_PROJECT_ID')}.api.sanity.io/v2021-10-21/data/query/{os.environ.get('SANITY_DATASET', 'production')}?query={requests.utils.quote(query)}"
+    headers = {'Authorization': f"Bearer {os.environ.get('SANITY_TOKEN')}"}
+    res = requests.get(url, headers=headers)
+    return res.text
 # ── API endpoints ─────────────────────────────────────────────────────────────
 
 @app.route("/api/files")
