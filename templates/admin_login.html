@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin Login | Ministry of Failures</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: #0a0a0a; color: #f0ece4; font-family: 'IBM Plex Mono', monospace; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+    .login-box { background: #111; border: 1px solid #2a2a2a; border-top: 3px solid #c8000a; padding: 3rem 2.5rem; width: 100%; max-width: 420px; border-radius: 2px; }
+    .login-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.1em; margin-bottom: 0.25rem; }
+    .login-sub { font-size: 0.7rem; color: #666; margin-bottom: 2rem; letter-spacing: 0.05em; }
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-size: 0.7rem; color: #999; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 0.4rem; }
+    input { width: 100%; background: #1a1a1a; border: 1px solid #2a2a2a; color: #f0ece4; padding: 0.65rem 1rem; font-family: monospace; font-size: 0.85rem; border-radius: 2px; outline: none; }
+    input:focus { border-color: #c8000a; }
+    .btn { width: 100%; background: #c8000a; color: white; border: none; padding: 0.75rem; font-family: monospace; font-size: 0.8rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; border-radius: 2px; margin-top: 0.5rem; }
+    .btn:hover { background: #ff1a1a; }
+    .flash { background: rgba(200,0,10,0.1); border: 1px solid #c8000a; color: #ff4444; padding: 0.6rem 1rem; font-size: 0.75rem; margin-bottom: 1rem; border-radius: 2px; }
+    .brand { color: #c8000a; }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <div class="login-title">MINISTRY <span class="brand">OF</span> FAILURES</div>
+    <div class="login-sub">Admin Panel — Secure Access</div>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        {% for cat, msg in messages %}
+          <div class="flash">{{ msg }}</div>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+    <form method="POST">
+      <div class="form-group">
+        <label>Username</label>
+        <input type="text" name="username" required autofocus />
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" required />
+      </div>
+      <button type="submit" class="btn">Login →</button>
+    </form>
+  </div>
+</body>
+</html>

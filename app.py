@@ -1,3 +1,6 @@
+from models import db, AdminUser, IndexCard
+from auth import auth, login_manager
+from admin_views import init_admin
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
@@ -10,6 +13,38 @@ from config import Config
 app = Flask(__name__)
 app.secret_key = Config.SECRET_KEY
 
+# ── Database ──────────────────────────────────────────────
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get(
+    'DATABASE_URL', 'sqlite:///ministry.db'
+)
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
+# ── Init extensions ───────────────────────────────────────
+db.init_app(app)
+login_manager.init_app(app)
+login_manager.login_view = 'auth.login'
+
+# ── Register blueprints ───────────────────────────────────
+app.register_blueprint(auth)
+
+# ── Init admin ────────────────────────────────────────────
+init_admin(app)
+
+# ── Create tables + default superadmin ───────────────────
+with app.app_context():
+    db.create_all()
+    if not AdminUser.query.filter_by(username='admin').first():
+        superadmin = AdminUser(
+            username='admin',
+            email='admin@ministryoffailures.lk',
+            role='superadmin',
+            active=True
+        )
+        superadmin.set_password('Admin@2025!')
+        db.session.add(superadmin)
+        db.session.commit()
+        print("✅ Default superadmin created: admin / Admin@2025!")
+        
 # ── Google Drive Service ──────────────────────────────────────────────────────
 def get_drive_service():
     """Build and return an authenticated Google Drive service."""
@@ -142,7 +177,8 @@ def api_files():
 
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    port = int(os.environ.get("PORT", 8000))
+    app.run(debug=False, host="0.0.0.0", port=port)
 
 
 @app.route("/pdf/page/<int:num>")
