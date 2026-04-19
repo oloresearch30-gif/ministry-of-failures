@@ -57,5 +57,20 @@
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   {% block extra_js %}{% endblock %}
+
+<!-- Lightbox -->
+<div id="lightbox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;cursor:pointer;" onclick="this.style.display='none'">
+  <img id="lightbox-img" src="" style="max-width:90%;max-height:90vh;border:2px solid #c8000a;box-shadow:0 0 40px rgba(200,0,10,0.4);" />
+</div>
+<script>
+function openLightbox(src) {
+  document.getElementById('lightbox-img').src = src;
+  document.getElementById('lightbox').style.display = 'flex';
+}
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') document.getElementById('lightbox').style.display = 'none';
+});
+</script>
+  
 </body>
 </html>
