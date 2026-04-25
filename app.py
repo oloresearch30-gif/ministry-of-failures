@@ -113,20 +113,25 @@ def upload_to_drive(file_obj, filename, mime_type, folder_id=None):
 
 # ── Routes ────────────────────────────────────────────────────────────────────
 
+import time
+_sanity_cache = {'data': [], 'ts': 0}
+
 @app.route('/')
 def index():
     import requests
-    try:
-        query = '*[_type == "indexCard" && active == true] | order(number asc)'
-        project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
-        dataset = os.environ.get('SANITY_DATASET', 'production')
-        url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={requests.utils.quote(query)}"
-        res = requests.get(url)
-        cards = res.json().get('result', [])
-    except Exception as e:
-        print(f"Sanity error: {e}")
-        cards = []
-    return render_template('index.html', cards=cards)
+    global _sanity_cache
+    now = time.time()
+    if now - _sanity_cache['ts'] > 300:
+        try:
+            query = '*[_type == "indexCard" && active == true] | order(number asc)'
+            project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
+            dataset = os.environ.get('SANITY_DATASET', 'production')
+            url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={requests.utils.quote(query)}"
+            res = requests.get(url, timeout=5)
+            _sanity_cache = {'data': res.json().get('result', []), 'ts': now}
+        except Exception as e:
+            print(f"Sanity error: {e}")
+    return render_template('index.html', cards=_sanity_cache['data'])
 
 @app.route("/videos")
 def videos():
