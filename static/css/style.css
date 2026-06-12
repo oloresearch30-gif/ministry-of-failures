@@ -1504,6 +1504,7 @@ img { max-width: 100%; display: block; }
   letter-spacing: 0.05em;
   transition: all var(--transition);
   border-bottom: 1px solid var(--border);
+  white-space: nowrap;
 }
 
 .nav-dropdown-item:hover {
