@@ -8,6 +8,7 @@ from googleapiclient.http import MediaFileUpload, MediaIoBaseUpload
 import io
 import os
 import json
+import time
 from config import Config
 
 app = Flask(__name__)
@@ -132,6 +133,51 @@ def index():
         except Exception as e:
             print(f"Sanity error: {e}")
     return render_template('index.html', cards=_sanity_cache['data'])
+
+def fetch_sanity_cards(year=None):
+    import requests as req
+    global _sanity_cache
+    now = time.time()
+    cache_key = year or 'all'
+    if not hasattr(fetch_sanity_cards, '_cache'):
+        fetch_sanity_cards._cache = {}
+    cache = fetch_sanity_cards._cache
+    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 300:
+        try:
+            if year:
+                query = f'*[_type == "indexCard" && active == true && year == "{year}"] | order(number asc)'
+            else:
+                query = '*[_type == "indexCard" && active == true] | order(number asc)'
+            project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
+            dataset = os.environ.get('SANITY_DATASET', 'production')
+            url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={req.utils.quote(query)}"
+            res = req.get(url, timeout=5)
+            cache[cache_key] = res.json().get('result', [])
+            cache[cache_key + '_ts'] = now
+        except Exception as e:
+            print(f"Sanity error: {e}")
+            cache[cache_key] = []
+    return cache.get(cache_key, [])
+
+@app.route('/')
+def index():
+    cards = fetch_sanity_cards('2025')
+    return render_template('index.html', cards=cards, year='2025')
+
+@app.route('/index/2025')
+def index_2025():
+    cards = fetch_sanity_cards('2025')
+    return render_template('index.html', cards=cards, year='2025')
+
+@app.route('/index/2026')
+def index_2026():
+    cards = fetch_sanity_cards('2026')
+    return render_template('index.html', cards=cards, year='2026')
+
+@app.route('/index/2027')
+def index_2027():
+    cards = fetch_sanity_cards('2027')
+    return render_template('index.html', cards=cards, year='2027')
 
 @app.route("/videos")
 def videos():

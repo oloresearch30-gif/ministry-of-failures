@@ -1472,3 +1472,49 @@ img { max-width: 100%; display: block; }
 .qa-icon { font-size: 2rem; }
 .qa-label { font-family: var(--font-mono); font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--white); }
 .qa-sub { font-size: 0.75rem; color: var(--dim); font-family: var(--font-sinhala); }
+
+
+/* ── Nav Dropdown ────────────────────────────────────────── */
+.nav-dropdown {
+  position: relative;
+}
+
+.nav-dropdown-menu {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: var(--dark);
+  border: 1px solid var(--border);
+  border-top: 2px solid var(--red);
+  min-width: 100px;
+  z-index: 200;
+  flex-direction: column;
+}
+
+.nav-dropdown:hover .nav-dropdown-menu {
+  display: flex;
+}
+
+.nav-dropdown-item {
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  color: var(--silver);
+  padding: 0.5rem 1rem;
+  letter-spacing: 0.05em;
+  transition: all var(--transition);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-dropdown-item:hover {
+  color: var(--white);
+  background: var(--mid);
+}
+
+.nav-dropdown-item.active {
+  color: var(--red);
+}
+
+.nav-dropdown-item:last-child {
+  border-bottom: none;
+}

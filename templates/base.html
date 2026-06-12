@@ -24,7 +24,14 @@
         <span class="logo-year">2025</span>
       </a>
       <nav class="main-nav">
-        <a href="{{ url_for('index') }}"      class="nav-link {% if request.endpoint == 'index'     %}active{% endif %}">දර්ශකය<br><small>Index</small></a>
+        <div class="nav-dropdown">
+          <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint in ['index','index_2025','index_2026','index_2027'] %}active{% endif %}">දර්ශකය<br><small>Index ▾</small></a>
+          <div class="nav-dropdown-menu">
+            <a href="{{ url_for('index_2025') }}" class="nav-dropdown-item {% if request.endpoint in ['index','index_2025'] %}active{% endif %}">2025</a>
+            <a href="{{ url_for('index_2026') }}" class="nav-dropdown-item {% if request.endpoint == 'index_2026' %}active{% endif %}">2026</a>
+            <a href="{{ url_for('index_2027') }}" class="nav-dropdown-item {% if request.endpoint == 'index_2027' %}active{% endif %}">2027</a>
+          </div>
+        </div>
         <a href="{{ url_for('gallery') }}"    class="nav-link {% if request.endpoint == 'gallery'   %}active{% endif %}">ගැලරිය<br><small>Gallery</small></a>
         <a href="{{ url_for('images') }}"     class="nav-link {% if request.endpoint == 'images'    %}active{% endif %}">පින්තූර<br><small>Images</small></a>
         <a href="{{ url_for('videos') }}"     class="nav-link {% if request.endpoint == 'videos'    %}active{% endif %}">වීඩියෝ<br><small>Videos</small></a>
