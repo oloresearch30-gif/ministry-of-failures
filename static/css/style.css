@@ -1533,3 +1533,33 @@ img { max-width: 100%; display: block; }
   align-items: center;
   position: relative;
 }
+
+/* ── Card Share Buttons ──────────────────────────────────── */
+.card-share {
+  display: flex;
+  gap: 0.4rem;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.share-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 2px;
+  border: 1px solid var(--border);
+  background: var(--mid);
+  color: var(--dim);
+  cursor: pointer;
+  transition: all var(--transition);
+  text-decoration: none;
+  font-size: 0.65rem;
+  font-family: var(--font-mono);
+}
+
+.share-btn:hover { border-color: var(--silver); color: var(--white); }
+.share-wa:hover  { border-color: #25D366; color: #25D366; }
+.share-fb:hover  { border-color: #1877F2; color: #1877F2; }
+.share-copy:hover { border-color: var(--red); color: var(--red); }
