@@ -23,21 +23,22 @@
         <span class="logo-failures">FAILURES</span>
         <span class="logo-year">2025</span>
       </a>
-      <nav class="main-nav">
-        <div class="nav-dropdown">
-          <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint in ['index','index_2025','index_2026','index_2027'] %}active{% endif %}">දර්ශකය<br><small>Index ▾</small></a>
-          <div class="nav-dropdown-menu">
-            <a href="{{ url_for('index_2025') }}" class="nav-dropdown-item {% if request.endpoint in ['index','index_2025'] %}active{% endif %}">2025</a>
-            <a href="{{ url_for('index_2026') }}" class="nav-dropdown-item {% if request.endpoint == 'index_2026' %}active{% endif %}">2026</a>
-            <a href="{{ url_for('index_2027') }}" class="nav-dropdown-item {% if request.endpoint == 'index_2027' %}active{% endif %}">2027</a>
-          </div>
-        </div>
-        <a href="{{ url_for('gallery') }}"    class="nav-link {% if request.endpoint == 'gallery'   %}active{% endif %}">ගැලරිය<br><small>Gallery</small></a>
-        <a href="{{ url_for('images') }}"     class="nav-link {% if request.endpoint == 'images'    %}active{% endif %}">පින්තූර<br><small>Images</small></a>
-        <a href="{{ url_for('videos') }}"     class="nav-link {% if request.endpoint == 'videos'    %}active{% endif %}">වීඩියෝ<br><small>Videos</small></a>
-        <a href="{{ url_for('documents') }}"  class="nav-link {% if request.endpoint == 'documents' %}active{% endif %}">ලේඛන<br><small>Docs</small></a>
-      </nav>
-      <button class="nav-toggle" aria-label="Toggle menu">☰</button>
+      <nav class="main-nav" id="mainNav">
+  <button class="nav-close" id="navClose" aria-label="Close menu">✕</button>
+  <a href="{{ url_for('index') }}" class="nav-link {% if request.endpoint in ['index','index_2025','index_2026','index_2027'] %}active{% endif %}">
+    <span class="nav-si">දර්ශකය</span><span class="nav-en">Index</span>
+    <div class="nav-sub-links">
+      <a href="{{ url_for('index_2025') }}">2025</a>
+      <a href="{{ url_for('index_2026') }}">2026</a>
+      <a href="{{ url_for('index_2027') }}">2027</a>
+    </div>
+  </a>
+  <a href="{{ url_for('gallery') }}"   class="nav-link {% if request.endpoint == 'gallery'   %}active{% endif %}"><span class="nav-si">ගැලරිය</span><span class="nav-en">Gallery</span></a>
+  <a href="{{ url_for('images') }}"    class="nav-link {% if request.endpoint == 'images'    %}active{% endif %}"><span class="nav-si">පින්තූර</span><span class="nav-en">Images</span></a>
+  <a href="{{ url_for('videos') }}"    class="nav-link {% if request.endpoint == 'videos'    %}active{% endif %}"><span class="nav-si">වීඩියෝ</span><span class="nav-en">Videos</span></a>
+  <a href="{{ url_for('documents') }}" class="nav-link {% if request.endpoint == 'documents' %}active{% endif %}"><span class="nav-si">ලේඛන</span><span class="nav-en">Docs</span></a>
+</nav>
+<button class="nav-toggle" id="navToggle" aria-label="Toggle menu">☰</button>
     </div>
   </header>
 
@@ -77,6 +78,11 @@ function openLightbox(src) {
 document.addEventListener('keydown', function(e) {
   if (e.key === 'Escape') document.getElementById('lightbox').style.display = 'none';
 });
+const navToggle = document.getElementById('navToggle');
+const navClose  = document.getElementById('navClose');
+const mainNav   = document.getElementById('mainNav');
+if(navToggle) navToggle.addEventListener('click', () => mainNav.classList.add('open'));
+if(navClose)  navClose.addEventListener('click',  () => mainNav.classList.remove('open'));
 </script>
   
 </body>

@@ -1563,3 +1563,94 @@ img { max-width: 100%; display: block; }
 .share-wa:hover  { border-color: #25D366; color: #25D366; }
 .share-fb:hover  { border-color: #1877F2; color: #1877F2; }
 .share-copy:hover { border-color: var(--red); color: var(--red); }
+
+
+/* ── Mobile fullscreen nav ───────────────────────────────── */
+@media (max-width: 700px) {
+  .main-nav {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: var(--dark);
+    z-index: 999;
+    flex-direction: column;
+    padding: 5rem 2rem 2rem;
+    gap: 0;
+    overflow-y: auto;
+    border-top: none;
+  }
+
+  .main-nav.open { display: flex; }
+
+  .main-nav .nav-link {
+    display: flex;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 1rem;
+    color: var(--silver);
+    border-radius: 0;
+    border-left: none;
+    border-right: none;
+    border-top: none;
+  }
+
+  .main-nav .nav-link:hover,
+  .main-nav .nav-link.active { color: var(--red); border-color: var(--border); background: none; }
+
+  .nav-si {
+    font-family: var(--font-sinhala);
+    font-size: 1.1rem;
+    color: inherit;
+  }
+
+  .nav-en {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--dim);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  .nav-sub-links {
+    display: flex;
+    gap: 0.75rem;
+    margin-left: auto;
+  }
+
+  .nav-sub-links a {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--dim);
+    padding: 0.2rem 0.5rem;
+    border: 1px solid var(--border);
+    border-radius: 2px;
+    transition: all var(--transition);
+  }
+
+  .nav-sub-links a:hover { color: var(--red); border-color: var(--red); }
+
+  .nav-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    background: none;
+    border: 1px solid var(--border);
+    color: var(--white);
+    font-size: 1.2rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    cursor: pointer;
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+}
+
+@media (min-width: 701px) {
+  .nav-close { display: none; }
+  .nav-si { display: none; }
+  .nav-sub-links { display: none; }
+}
