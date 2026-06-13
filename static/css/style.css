@@ -830,7 +830,6 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 700px) {
   .main-nav { display: none; }
-  .nav-toggle { display: block; }
   .main-nav.open {
     display: flex;
     flex-direction: column;
@@ -842,14 +841,6 @@ img { max-width: 100%; display: block; }
     gap: 0.75rem;
     overflow-y: auto;
   }
-  .gallery-masonry { columns: 2; }
-  .index-header { grid-template-columns: 2rem 1fr; }
-  .index-en { display: none; }
-  .index-body { padding-left: 2.25rem; }
-  .stats-grid { grid-template-columns: 1fr; }
-  .rules-grid { flex-direction: column; gap: 0.75rem; }
-  .files-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
-}
 
 @media (max-width: 480px) {
   .gallery-masonry { columns: 1; }
@@ -1054,22 +1045,6 @@ img { max-width: 100%; display: block; }
 @media (min-width: 600px) and (max-width: 767px) {
   .site-header { height: auto; }
   .header-inner { flex-wrap: wrap; height: auto; padding: 0.75rem 1rem; }
-  .main-nav { display: none; }
-  .nav-toggle { display: block; }
-  .main-nav.open {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    inset: 0 0 0 0;
-    top: 56px;
-    background: var(--dark);
-    z-index: 99;
-    padding: 1.5rem 1rem;
-    gap: 0.5rem;
-    overflow-y: auto;
-  }
-  .nav-link { font-size: 1rem; padding: 0.75rem 1rem; }
-  .nav-link small { font-size: 0.75rem; }
 
   .hero-ministry,
   .hero-failures { font-size: 4.5rem; }
@@ -1110,24 +1085,6 @@ img { max-width: 100%; display: block; }
   .logo-ministry, .logo-failures { font-size: 1rem; }
   .logo-of { font-size: 0.65rem; }
   .logo-year { display: none; }
-  .main-nav { display: none; }
-  .nav-toggle { display: block; margin-left: auto; }
-  .main-nav.open {
-    display: flex;
-    flex-direction: column;
-    position: fixed;
-    top: 52px;
-    left: 0; right: 0; bottom: 0;
-    background: var(--dark);
-    z-index: 99;
-    padding: 1rem;
-    gap: 0.4rem;
-    overflow-y: auto;
-    border-top: 2px solid var(--red);
-  }
-  .nav-link { font-size: 0.95rem; padding: 0.85rem 1rem; border-bottom: 1px solid var(--border); }
-  .nav-link small { font-size: 0.7rem; }
-  .nav-link.upload-link { margin-top: 0.5rem; border-bottom: none; }
 
   /* Hero */
   .hero-tape { font-size: 0.6rem; }
