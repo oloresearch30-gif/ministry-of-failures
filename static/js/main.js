@@ -5,13 +5,14 @@
 document.addEventListener('DOMContentLoaded', () => {
 
   // ── Mobile nav toggle ───────────────────────────────────
-  const toggle = document.querySelector('.nav-toggle');
-  const nav    = document.querySelector('.main-nav');
-  toggle?.addEventListener('click', () => nav?.classList.toggle('open'));
-  // Close on nav link click
-  nav?.querySelectorAll('.nav-link').forEach(l => {
-    l.addEventListener('click', () => nav.classList.remove('open'));
-  });
+const toggle = document.querySelector('.nav-toggle');
+const navClose = document.querySelector('.nav-close');
+const nav    = document.querySelector('.main-nav');
+toggle?.addEventListener('click', () => nav?.classList.add('open'));
+navClose?.addEventListener('click', () => nav?.classList.remove('open'));
+nav?.querySelectorAll('.nav-link').forEach(l => {
+  l.addEventListener('click', () => nav.classList.remove('open'));
+});
 
 
   // ── Animated counters ────────────────────────────────────
