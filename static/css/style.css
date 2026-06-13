@@ -537,13 +537,19 @@ img { max-width: 100%; display: block; }
   .main-nav {
     display: none;
     position: fixed;
-    inset: 0;
+    top: 64px;
+    right: 1rem;
+    width: 260px;
     background: var(--dark);
+    border: 1px solid var(--border);
+    border-top: 2px solid var(--red);
     z-index: 999;
     flex-direction: column;
-    padding: 5rem 2rem 2rem;
+    padding: 1rem 0;
     gap: 0;
     overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+    border-radius: 2px;
     margin-left: 0;
   }
 
@@ -551,15 +557,15 @@ img { max-width: 100%; display: block; }
 
   .main-nav .nav-link {
     display: flex;
-    align-items: baseline;
+    align-items: center;
     gap: 0.75rem;
-    padding: 1.1rem 0;
+    padding: 0.9rem 1.25rem;
     border-bottom: 1px solid var(--border);
     border-top: none;
     border-left: none;
     border-right: none;
     border-radius: 0;
-    font-size: 1rem;
+    font-size: 0.9rem;
     color: var(--silver);
     background: none;
   }
@@ -567,35 +573,37 @@ img { max-width: 100%; display: block; }
   .main-nav .nav-link:hover,
   .main-nav .nav-link.active {
     color: var(--red);
+    background: rgba(200,0,10,0.06);
     border-color: var(--border);
-    background: none;
   }
 
   .nav-si {
     display: inline;
     font-family: var(--font-sinhala);
-    font-size: 1.1rem;
+    font-size: 1rem;
     color: inherit;
   }
 
   .nav-en {
     display: inline;
     font-family: var(--font-mono);
-    font-size: 0.65rem;
+    font-size: 0.6rem;
     color: var(--dim);
     letter-spacing: 0.1em;
     text-transform: uppercase;
+    margin-left: auto;
   }
 
   .nav-sub-links {
     display: flex;
-    gap: 0.75rem;
-    margin-left: auto;
+    gap: 0.5rem;
+    padding: 0.5rem 1.25rem 0.75rem;
+    border-bottom: 1px solid var(--border);
   }
 
   .nav-sub-links a {
     font-family: var(--font-mono);
-    font-size: 0.7rem;
+    font-size: 0.65rem;
     color: var(--dim);
     padding: 0.2rem 0.5rem;
     border: 1px solid var(--border);
@@ -610,19 +618,20 @@ img { max-width: 100%; display: block; }
 
   .nav-close {
     display: flex;
-    position: fixed;
-    top: 1rem;
-    right: 1rem;
+    position: absolute;
+    top: 0.5rem;
+    right: 0.5rem;
     background: none;
-    border: 1px solid var(--border);
-    color: var(--white);
-    font-size: 1.2rem;
-    width: 2.5rem;
-    height: 2.5rem;
+    border: none;
+    color: var(--dim);
+    font-size: 1rem;
+    width: 2rem;
+    height: 2rem;
     cursor: pointer;
     border-radius: 2px;
     align-items: center;
     justify-content: center;
-    z-index: 1000;
   }
+
+  .nav-close:hover { color: var(--white); }
 }
