@@ -183,6 +183,14 @@ img { max-width: 100%; display: block; }
 .tag--red    { border-color: var(--red); color: var(--red); }
 .tag--yellow { border-color: var(--amber); color: var(--amber); }
 
+/* Media Tags */
+.card-media-tags { margin-top: 0.4rem; }
+.media-tag { background: var(--dark); border-color: var(--muted); cursor: pointer; transition: all var(--transition); text-transform: none; }
+.media-tag:hover { background: var(--mid); color: var(--white); border-color: var(--silver); transform: translateY(-1px); }
+.media-tag--video:hover { border-color: var(--gold); color: var(--gold); }
+.media-tag--image:hover { border-color: #3b82f6; color: #3b82f6; }
+.media-tag--doc:hover { border-color: #10b981; color: #10b981; }
+
 /* ── Card Share Buttons ──────────────────────────────────── */
 .card-share { display: flex; gap: 0.4rem; justify-content: flex-end; margin-top: 0.75rem; }
 .share-btn {

@@ -54,6 +54,15 @@ def list_drive_files(mime_filter=None, folder_id=None):
         print(f"Drive error: {e}")
         return []
 
+# ── Sanity GROQ projection for media assets ──────────────────────────────
+SANITY_MEDIA_PROJECTION = (
+    '{ ...,'
+    ' videos[]{title, "url": file.asset->url, "originalFilename": file.asset->originalFilename},'
+    ' images[]{title, "url": image.asset->url, "originalFilename": image.asset->originalFilename},'
+    ' documents[]{title, "url": file.asset->url, "originalFilename": file.asset->originalFilename}'
+    ' }'
+)
+
 def fetch_sanity_cards(year=None):
     import requests as req
     if not hasattr(fetch_sanity_cards, '_cache'):
@@ -64,9 +73,9 @@ def fetch_sanity_cards(year=None):
     if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 30:
         try:
             if year:
-                query = f'*[_type == "indexCard" && active == true && year == "{year}"] | order(number asc)'
+                query = f'*[_type == "indexCard" && active == true && year == "{year}"] | order(number asc) ' + SANITY_MEDIA_PROJECTION
             else:
-                query = '*[_type == "indexCard" && active == true] | order(number asc)'
+                query = '*[_type == "indexCard" && active == true] | order(number asc) ' + SANITY_MEDIA_PROJECTION
             project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
             dataset = os.environ.get('SANITY_DATASET', 'production')
             url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={req.utils.quote(query)}"
@@ -77,6 +86,62 @@ def fetch_sanity_cards(year=None):
             print(f"Sanity error: {e}")
             cache[cache_key] = cache.get(cache_key, [])
     return cache.get(cache_key, [])
+
+def fetch_sanity_media(media_type):
+    """Fetch all media of a given type (videos/images/documents) from all active index cards."""
+    import requests as req
+    if not hasattr(fetch_sanity_media, '_cache'):
+        fetch_sanity_media._cache = {}
+    cache = fetch_sanity_media._cache
+    now = time.time()
+    if media_type not in cache or now - cache.get(media_type + '_ts', 0) > 30:
+        try:
+            project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
+            dataset = os.environ.get('SANITY_DATASET', 'production')
+
+            if media_type == 'videos':
+                query = ('*[_type == "indexCard" && active == true && defined(videos) && count(videos) > 0]'
+                         ' | order(number asc)'
+                         ' { number, titleSi, titleEn, year,'
+                         '   videos[]{title, "url": file.asset->url, "originalFilename": file.asset->originalFilename}'
+                         ' }')
+            elif media_type == 'images':
+                query = ('*[_type == "indexCard" && active == true && defined(images) && count(images) > 0]'
+                         ' | order(number asc)'
+                         ' { number, titleSi, titleEn, year,'
+                         '   images[]{title, "url": image.asset->url, "originalFilename": image.asset->originalFilename}'
+                         ' }')
+            elif media_type == 'documents':
+                query = ('*[_type == "indexCard" && active == true && defined(documents) && count(documents) > 0]'
+                         ' | order(number asc)'
+                         ' { number, titleSi, titleEn, year,'
+                         '   documents[]{title, "url": file.asset->url, "originalFilename": file.asset->originalFilename}'
+                         ' }')
+            else:
+                cache[media_type] = []
+                cache[media_type + '_ts'] = now
+                return []
+
+            url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={req.utils.quote(query)}"
+            res = req.get(url, timeout=10)
+            cards = res.json().get('result', [])
+
+            # Flatten: extract each media item with its parent card context
+            items = []
+            for card in cards:
+                media_list = card.get(media_type, []) or []
+                for item in media_list:
+                    if item and item.get('url'):
+                        item['cardNumber'] = card.get('number', '')
+                        item['cardTitle'] = card.get('titleEn', '') or card.get('titleSi', '')
+                        item['cardYear'] = card.get('year', '')
+                        items.append(item)
+            cache[media_type] = items
+            cache[media_type + '_ts'] = now
+        except Exception as e:
+            print(f"Sanity media error ({media_type}): {e}")
+            cache[media_type] = cache.get(media_type, [])
+    return cache.get(media_type, [])
 
 @app.route('/')
 def index():
@@ -100,22 +165,22 @@ def index_2027():
 
 @app.route("/videos")
 def videos():
-    files = list_drive_files(mime_filter=["video/mp4", "video/avi", "video/mov", "video/quicktime", "video/x-msvideo", "video/webm"])
+    files = fetch_sanity_media('videos')
     return render_template("videos.html", files=files)
 
 @app.route("/documents")
 def documents():
-    files = list_drive_files(mime_filter=["application/pdf"])
+    files = fetch_sanity_media('documents')
     return render_template("documents.html", files=files)
 
 @app.route("/images")
 def images():
-    files = list_drive_files(mime_filter=["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"])
+    files = fetch_sanity_media('images')
     return render_template("images.html", files=files)
 
 @app.route("/gallery")
 def gallery():
-    files = list_drive_files(mime_filter=["image/jpeg", "image/png", "image/gif", "image/webp", "image/svg+xml"])
+    files = fetch_sanity_media('images')
     return render_template("gallery.html", files=files)
 
 @app.route('/debug-sanity')
@@ -130,15 +195,10 @@ def debug_sanity():
 
 @app.route("/api/files")
 def api_files():
-    all_files = list_drive_files()
-    grouped = {"videos": [], "documents": [], "images": [], "other": []}
-    for f in all_files:
-        mt = f.get("mimeType", "")
-        if mt.startswith("video/"): grouped["videos"].append(f)
-        elif mt == "application/pdf": grouped["documents"].append(f)
-        elif mt.startswith("image/"): grouped["images"].append(f)
-        else: grouped["other"].append(f)
-    return jsonify(grouped)
+    videos = fetch_sanity_media('videos')
+    images = fetch_sanity_media('images')
+    documents = fetch_sanity_media('documents')
+    return jsonify({"videos": videos, "documents": documents, "images": images})
 
 @app.route("/pdf/page/<int:num>")
 def pdf_page(num):

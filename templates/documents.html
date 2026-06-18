@@ -4,7 +4,7 @@
 
 <div class="page-header">
   <h1 class="page-title">ලේඛන <span>Documents</span></h1>
-  <p class="page-sub">{{ files|length }} PDF{{ 's' if files|length != 1 }} from Google Drive</p>
+  <p class="page-sub">{{ files|length }} document{{ 's' if files|length != 1 }} from Evidence</p>
 </div>
 
 {% if files %}
@@ -13,17 +13,16 @@
 </div>
 <div class="docs-list" id="docList">
   {% for f in files %}
-  <div class="doc-row" data-name="{{ f.name }}">
+  {% set name = f.title or f.originalFilename or 'Document' %}
+  <div class="doc-row" data-name="{{ name }}">
     <div class="doc-icon">📄</div>
     <div class="doc-details">
-      <span class="doc-name">{{ f.name }}</span>
-      <span class="doc-date">{{ f.createdTime[:10] if f.createdTime else '' }}</span>
+      <span class="doc-name">{{ name }}</span>
+      <span class="doc-date">Index {{ f.cardNumber }} ({{ f.cardYear }})</span>
     </div>
     <div class="doc-actions">
-      <a href="{{ f.webViewLink }}" target="_blank" class="btn btn--small">View ↗</a>
-      {% if f.webContentLink %}
-      <a href="{{ f.webContentLink }}" class="btn btn--small btn--outline">Download</a>
-      {% endif %}
+      <a href="{{ f.url }}" target="_blank" class="btn btn--small">View ↗</a>
+      <a href="{{ f.url }}?dl=" class="btn btn--small btn--outline">Download</a>
     </div>
   </div>
   {% endfor %}
@@ -31,7 +30,7 @@
 {% else %}
 <div class="empty-state">
   <span class="empty-icon">📄</span>
-  <p>No documents in Drive yet.</p>
+  <p>No documents available yet.</p>
 </div>
 {% endif %}
 

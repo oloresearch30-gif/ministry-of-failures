@@ -1,10 +1,10 @@
 {% extends "base.html" %}
 {% block title %}Images | Ministry of Failures{% endblock %}
 {% block content %}
-
+<div style="max-width:100vw;overflow-x:hidden;">
 <div class="page-header">
   <h1 class="page-title">පින්තූර <span>Images</span></h1>
-  <p class="page-sub">{{ files|length }} image{{ 's' if files|length != 1 }} from Google Drive</p>
+  <p class="page-sub">{{ files|length }} image{{ 's' if files|length != 1 }} from Evidence</p>
 </div>
 
 {% if files %}
@@ -13,17 +13,21 @@
 </div>
 <div class="files-grid" id="imgGrid">
   {% for f in files %}
-  <div class="file-card" data-name="{{ f.name }}">
+  {% set name = f.title or f.originalFilename or 'Image' %}
+  <div class="file-card" data-name="{{ name }}">
     <div class="file-thumb">
-      {% if f.thumbnailLink %}
-      <img src="{{ f.thumbnailLink }}" alt="{{ f.name }}" loading="lazy" />
+      {% if f.url %}
+      <img src="{{ f.url }}?w=400&fit=max" alt="{{ name }}" loading="lazy" />
       {% else %}
       <div class="file-thumb-placeholder">🖼</div>
       {% endif %}
     </div>
     <div class="file-info">
-      <span class="file-name" title="{{ f.name }}">{{ f.name }}</span>
-      <a href="{{ f.webViewLink }}" target="_blank" class="btn btn--small">View ↗</a>
+      <span class="file-name" title="{{ name }}">{{ name }}</span>
+      <a href="{{ f.url }}" target="_blank" class="btn btn--small">View ↗</a>
+    </div>
+    <div style="padding: 0 0.75rem 0.75rem; font-size: 0.6rem; color: var(--dim);">
+      Index {{ f.cardNumber }} ({{ f.cardYear }})
     </div>
   </div>
   {% endfor %}
@@ -31,7 +35,7 @@
 {% else %}
 <div class="empty-state">
   <span class="empty-icon">🖼</span>
-  <p>No images in Drive yet.</p>
+  <p>No images available yet.</p>
 </div>
 {% endif %}
 
@@ -45,4 +49,5 @@ document.getElementById('imgSearch')?.addEventListener('input', function() {
   });
 });
 </script>
+</div>
 {% endblock %}
