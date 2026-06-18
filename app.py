@@ -61,7 +61,7 @@ def fetch_sanity_cards(year=None):
     cache = fetch_sanity_cards._cache
     cache_key = year or 'all'
     now = time.time()
-    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 300:
+    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 30:
         try:
             if year:
                 query = f'*[_type == "indexCard" && active == true && year == "{year}"] | order(number asc)'
