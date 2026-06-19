@@ -653,3 +653,76 @@ img { max-width: 100%; display: block; }
 
   .nav-close:hover { color: var(--white); }
 }
+
+/* ── Site Intro Animation ───────────────────────────────────────── */
+.site-intro {
+  position: fixed;
+  inset: 0;
+  background-color: var(--black);
+  z-index: 10000; /* Above everything */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.5s ease-out;
+}
+
+.site-intro.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-content {
+  text-align: left;
+  max-width: 90%;
+}
+
+.intro-text {
+  font-family: var(--font-mono);
+  font-size: 1.2rem;
+  color: var(--red);
+  margin-bottom: 0.5rem;
+  overflow: hidden;
+  white-space: nowrap;
+  width: 0;
+}
+
+.intro-text::after {
+  content: "█";
+  animation: blink 1s step-end infinite;
+  margin-left: 5px;
+}
+
+#introText1 {
+  animation: typing1 1s steps(28, end) forwards;
+}
+
+#introText2 {
+  animation: typing2 1.5s steps(35, end) forwards;
+}
+
+#introText1::after {
+  animation: blink 1s step-end infinite, hideCursor 0s forwards 1.2s;
+}
+
+@keyframes typing1 {
+  from { width: 0; }
+  to { width: 28ch; }
+}
+
+@keyframes typing2 {
+  from { width: 0; }
+  to { width: 35ch; }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+@keyframes hideCursor {
+  to { display: none; content: ""; }
+}
+
+@media (max-width: 768px) {
+  .intro-text { font-size: 0.8rem; }
+}

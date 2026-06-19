@@ -10,6 +10,14 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" />
 </head>
 <body>
+  
+  <!-- ── Site Intro Animation (Plays once per session) ── -->
+  <div id="site-intro" class="site-intro">
+    <div class="intro-content">
+      <div class="intro-text" id="introText1">> ESTABLISHING CONNECTION...</div>
+      <div class="intro-text" id="introText2" style="display:none">> ACCESSING MINISTRY OF FAILURES...</div>
+    </div>
+  </div>
 
   <!-- ── Scanline overlay ───────────────────────────────────────────── -->
   <div class="scanline" aria-hidden="true"></div>
@@ -71,6 +79,31 @@
   </footer>
 
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+  <script>
+    // Intro Animation Logic
+    document.addEventListener("DOMContentLoaded", function() {
+      const intro = document.getElementById("site-intro");
+      if (!sessionStorage.getItem("introPlayed")) {
+        // Play animation
+        setTimeout(() => {
+          document.getElementById("introText2").style.display = "block";
+        }, 1200); // 1.2s before second line appears
+        
+        setTimeout(() => {
+          intro.classList.add("fade-out");
+        }, 3000); // Start fade out at 3s
+        
+        setTimeout(() => {
+          intro.style.display = "none";
+          sessionStorage.setItem("introPlayed", "true");
+        }, 3500); // Hide completely after 3.5s
+      } else {
+        // Already played in this session, hide immediately
+        intro.style.display = "none";
+      }
+    });
+  </script>
+
   {% block extra_js %}{% endblock %}
 
 <!-- Universal Lightbox -->
