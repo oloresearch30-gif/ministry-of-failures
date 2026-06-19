@@ -15,7 +15,7 @@
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Image' %}
   <div class="file-card" data-name="{{ name }}">
-    <div class="file-thumb">
+    <div class="file-thumb" style="cursor:pointer" onclick="openMedia('{{ f.url }}', 'image', '{{ name|replace('\'', '\\\'') }}')">
       {% if f.url %}
       <img src="{{ f.url }}?w=400&fit=max" alt="{{ name }}" loading="lazy" />
       {% else %}
@@ -24,7 +24,7 @@
     </div>
     <div class="file-info">
       <span class="file-name" title="{{ name }}">{{ name }}</span>
-      <a href="{{ f.url }}" target="_blank" class="btn btn--small">View ↗</a>
+      <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick="event.preventDefault();openMedia(this.href, 'image', '{{ name|replace('\'', '\\\'') }}')">View ↗</a>
     </div>
     <div style="padding: 0 0.75rem 0.75rem; font-size: 0.6rem; color: var(--dim);">
       Index {{ f.cardNumber }} ({{ f.cardYear }})

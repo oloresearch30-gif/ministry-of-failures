@@ -172,7 +172,7 @@
     <p>{{ card.get('body', '') }}</p>
     {% if card.get('image') %}
     <img src="https://cdn.sanity.io/images/31sea43n/production/{{ card['image']['asset']['_ref'].replace('image-','').replace('-jpg','.jpg').replace('-png','.png').replace('-webp','.webp') }}"
-         onclick="openLightbox(this.src)"
+         onclick="openMedia(this.src, 'image', '{{ card.get('titleEn', '')|replace('\'', '\\\'') }}')"
          style="max-width:100%;cursor:pointer;border:1px solid #2a2a2a;margin-top:0.5rem;" />
     {% endif %}
     {% if card.get('tags') %}
@@ -192,21 +192,24 @@
       {% if has_videos %}
         {% for v in card['videos'] %}
           {% if v.get('url') %}
-          <a href="{{ v.url }}" target="_blank" class="tag media-tag media-tag--video" title="{{ v.title or v.originalFilename or 'Video' }}">🎬 {{ v.title or v.originalFilename or 'Video' }}</a>
+          {% set vtitle = v.title or v.originalFilename or 'Video' %}
+          <a href="{{ v.url }}" target="_blank" class="tag media-tag media-tag--video" title="{{ vtitle }}" onclick="event.preventDefault();openMedia(this.href, 'video', '{{ vtitle|replace('\'', '\\\'') }}')">🎬 {{ vtitle }}</a>
           {% endif %}
         {% endfor %}
       {% endif %}
       {% if has_images %}
         {% for img in card['images'] %}
           {% if img.get('url') %}
-          <a href="{{ img.url }}" target="_blank" class="tag media-tag media-tag--image" title="{{ img.title or img.originalFilename or 'Image' }}" onclick="event.preventDefault();openLightbox(this.href)">🖼 {{ img.title or img.originalFilename or 'Image' }}</a>
+          {% set ititle = img.title or img.originalFilename or 'Image' %}
+          <a href="{{ img.url }}" target="_blank" class="tag media-tag media-tag--image" title="{{ ititle }}" onclick="event.preventDefault();openMedia(this.href, 'image', '{{ ititle|replace('\'', '\\\'') }}')">🖼 {{ ititle }}</a>
           {% endif %}
         {% endfor %}
       {% endif %}
       {% if has_documents %}
         {% for doc in card['documents'] %}
           {% if doc.get('url') %}
-          <a href="{{ doc.url }}" target="_blank" class="tag media-tag media-tag--doc" title="{{ doc.title or doc.originalFilename or 'Document' }}">📄 {{ doc.title or doc.originalFilename or 'Document' }}</a>
+          {% set dtitle = doc.title or doc.originalFilename or 'Document' %}
+          <a href="{{ doc.url }}" target="_blank" class="tag media-tag media-tag--doc" title="{{ dtitle }}" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ dtitle|replace('\'', '\\\'') }}')">📄 {{ dtitle }}</a>
           {% endif %}
         {% endfor %}
       {% endif %}

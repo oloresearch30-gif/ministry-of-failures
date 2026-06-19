@@ -73,18 +73,80 @@
   <script src="{{ url_for('static', filename='js/main.js') }}"></script>
   {% block extra_js %}{% endblock %}
 
-<!-- Lightbox -->
-<div id="lightbox" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.92);z-index:9999;align-items:center;justify-content:center;cursor:pointer;" onclick="this.style.display='none'">
-  <img id="lightbox-img" src="" style="max-width:90%;max-height:90vh;border:2px solid #c8000a;box-shadow:0 0 40px rgba(200,0,10,0.4);" />
+<!-- Universal Lightbox -->
+<div id="univ-lightbox" class="univ-lightbox" onclick="closeMedia()">
+  <button class="univ-lightbox-close" onclick="closeMedia()">✕</button>
+  <div class="univ-lightbox-inner" onclick="event.stopPropagation()">
+    
+    <div id="univ-lb-content" class="univ-lb-content">
+      <img id="univ-lb-img" class="univ-media-item" src="" alt="" style="display:none;" />
+      <video id="univ-lb-video" class="univ-media-item" controls style="display:none;"></video>
+      <iframe id="univ-lb-iframe" class="univ-media-item" src="" style="display:none;" frameborder="0"></iframe>
+    </div>
+
+    <div class="univ-lightbox-caption">
+      <span id="univ-lb-title"></span>
+      <a id="univ-lb-link" href="#" target="_blank" class="btn btn--small">Open Original ↗</a>
+    </div>
+  </div>
 </div>
+
 <script>
-function openLightbox(src) {
-  document.getElementById('lightbox-img').src = src;
-  document.getElementById('lightbox').style.display = 'flex';
+function openMedia(url, type, title) {
+  const lb = document.getElementById('univ-lightbox');
+  const img = document.getElementById('univ-lb-img');
+  const vid = document.getElementById('univ-lb-video');
+  const iframe = document.getElementById('univ-lb-iframe');
+  const titleEl = document.getElementById('univ-lb-title');
+  const linkEl = document.getElementById('univ-lb-link');
+
+  // Hide all media elements initially
+  img.style.display = 'none';
+  vid.style.display = 'none';
+  iframe.style.display = 'none';
+
+  // Pause video if it was playing previously
+  vid.pause();
+  vid.src = '';
+  img.src = '';
+  iframe.src = '';
+
+  titleEl.textContent = title || '';
+  linkEl.href = url;
+
+  if (type === 'image') {
+    img.src = url;
+    img.style.display = 'block';
+  } else if (type === 'video') {
+    vid.src = url;
+    vid.style.display = 'block';
+    vid.play().catch(e => console.log('Auto-play prevented', e));
+  } else if (type === 'document') {
+    iframe.src = url;
+    iframe.style.display = 'block';
+  }
+
+  lb.classList.add('active');
+  document.body.style.overflow = 'hidden';
 }
+
+function closeMedia() {
+  const lb = document.getElementById('univ-lightbox');
+  const vid = document.getElementById('univ-lb-video');
+  const iframe = document.getElementById('univ-lb-iframe');
+  
+  vid.pause();
+  vid.src = '';
+  iframe.src = '';
+  
+  lb.classList.remove('active');
+  document.body.style.overflow = '';
+}
+
 document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') document.getElementById('lightbox').style.display = 'none';
+  if (e.key === 'Escape') closeMedia();
 });
+
 const navToggle = document.getElementById('navToggle');
 const navClose  = document.getElementById('navClose');
 const mainNav   = document.getElementById('mainNav');

@@ -16,7 +16,7 @@
 <div class="gallery-masonry" id="galleryGrid">
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Image' %}
-  <div class="gallery-item" data-name="{{ name }}" onclick="openLightbox('{{ f.url }}', '{{ name|replace("'", "\\'") }}', '{{ f.url }}')">
+  <div class="gallery-item" data-name="{{ name }}" onclick="openMedia('{{ f.url }}', 'image', '{{ name|replace("'", "\\'") }}')">
     {% if f.url %}
     <img
       src="{{ f.url }}?w=600&fit=max"
@@ -31,23 +31,13 @@
     {% endif %}
     <div class="gallery-overlay">
       <span class="gallery-filename">{{ name }}</span>
-      <a href="{{ f.url }}" target="_blank" onclick="event.stopPropagation()" class="gallery-open">Open ↗</a>
+      <a href="{{ f.url }}" target="_blank" onclick="event.stopPropagation(); event.preventDefault(); openMedia(this.href, 'image', '{{ name|replace('\'', '\\\'') }}')" class="gallery-open">Open ↗</a>
     </div>
   </div>
   {% endfor %}
 </div>
 
-<!-- Lightbox -->
-<div id="lightbox" class="lightbox" onclick="closeLightbox()">
-  <button class="lightbox-close" onclick="closeLightbox()">✕</button>
-  <div class="lightbox-inner" onclick="event.stopPropagation()">
-    <img id="lightboxImg" src="" alt="" />
-    <div class="lightbox-caption">
-      <span id="lightboxName"></span>
-      <a id="lightboxLink" href="#" target="_blank" class="btn btn--small">Open Original ↗</a>
-    </div>
-  </div>
-</div>
+
 
 {% else %}
 <div class="empty-state">
@@ -60,22 +50,7 @@
 
 {% block extra_js %}
 <script>
-function openLightbox(imgUrl, name, link) {
-  const lb = document.getElementById('lightbox');
-  const img = document.getElementById('lightboxImg');
-  const nm = document.getElementById('lightboxName');
-  const lk = document.getElementById('lightboxLink');
-  img.src = `${imgUrl}?w=1200&fit=max`;
-  nm.textContent = name;
-  lk.href = link;
-  lb.classList.add('active');
-  document.body.style.overflow = 'hidden';
-}
-function closeLightbox() {
-  document.getElementById('lightbox').classList.remove('active');
-  document.body.style.overflow = '';
-}
-document.addEventListener('keydown', e => { if (e.key === 'Escape') closeLightbox(); });
+
 
 // Search
 document.getElementById('gallerySearch')?.addEventListener('input', function() {
