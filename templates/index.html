@@ -6,10 +6,7 @@
 
   <div class="pdf-topbar">
     <span class="pdf-title">MINISTRY OF FAILURES — {{ year }} සම්පූර්ණ ලේඛනය</span>
-    <div style="display:flex;align-items:center;gap:1rem;">
-      <button id="fbAutoPlay" class="fb-btn fb-btn--play">Auto-Play ▶</button>
-      <span class="pdf-pageinfo">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
-    </div>
+    <span class="pdf-pageinfo">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
   </div>
 
 <div class="pdf-viewer" id="fbViewer">
@@ -95,19 +92,17 @@
     });
   }
 
-  /* ── Auto-Play Logic ── */
+  /* ── Click to Play / Pause ── */
   let autoPlayTimer = null;
-  const autoPlayBtn = document.getElementById('fbAutoPlay');
   
   function toggleAutoPlay() {
     if (autoPlayTimer) {
       clearInterval(autoPlayTimer);
       autoPlayTimer = null;
-      autoPlayBtn.textContent = 'Auto-Play ▶';
-      autoPlayBtn.classList.remove('active');
+      // Show hint again when paused
+      document.querySelector('.pdf-hint').textContent = 'Click to Play ▶ | Swipe for pages';
     } else {
-      autoPlayBtn.textContent = 'Pause ⏸';
-      autoPlayBtn.classList.add('active');
+      document.querySelector('.pdf-hint').textContent = 'Playing... Click to Pause ⏸';
       autoPlayTimer = setInterval(() => {
         if (current < total) {
           goTo(current + 1, 'next');
@@ -117,8 +112,11 @@
       }, 3000); // 3 seconds per page
     }
   }
+
+  viewer.addEventListener('click', toggleAutoPlay);
   
-  autoPlayBtn.addEventListener('click', toggleAutoPlay);
+  // Update initial hint text
+  document.querySelector('.pdf-hint').textContent = 'Click to Play ▶ | Swipe for pages';
 
   function updateThumbs(num) {
     document.querySelectorAll('.fb-thumb').forEach(t => t.classList.remove('active'));
@@ -150,17 +148,6 @@
     }, { root: thumbs, rootMargin: '0px 300px' });
     document.querySelectorAll('.fb-thumb').forEach(t => obs.observe(t));
   }
-
-  /* ── Click left/right half ── */
-  viewer.addEventListener('click', (e) => {
-    const rect = viewer.getBoundingClientRect();
-    const x = e.clientX - rect.left;
-    if (x < rect.width / 2) {
-      if (current > 1) goTo(current - 1, 'prev');
-    } else {
-      if (current < total) goTo(current + 1, 'next');
-    }
-  });
 
   /* ── Touch swipe ── */
   let touchX = 0;
