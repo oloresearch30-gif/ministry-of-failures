@@ -6,7 +6,10 @@
 
   <div class="pdf-topbar">
     <span class="pdf-title">MINISTRY OF FAILURES — {{ year }} සම්පූර්ණ ලේඛනය</span>
-    <span class="pdf-pageinfo">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
+    <div style="display:flex;align-items:center;gap:1rem;">
+      <button id="fbAutoPlay" class="fb-btn fb-btn--play">Auto-Play ▶</button>
+      <span class="pdf-pageinfo">Page <span id="fbCurrent">1</span> of <span id="fbTotal">136</span></span>
+    </div>
   </div>
 
 <div class="pdf-viewer" id="fbViewer">
@@ -70,19 +73,15 @@
     preload(num, (src) => {
       if (!src) { loading.style.display = 'none'; flipping = false; return; }
 
-      if (dir === 'next') {
-        imgBack.src = imgFront.src;
-        imgFront.src = src;
-        wrap.classList.remove('flip-prev');
-        void wrap.offsetWidth;
-        wrap.classList.add('flip-next');
-      } else {
-        imgBack.src = src;
-        wrap.classList.remove('flip-next');
-        void wrap.offsetWidth;
-        wrap.classList.add('flip-prev');
-        setTimeout(() => { imgFront.src = src; }, 350);
-      }
+      // Simple Morph logic: 
+      // Put current front image to back.
+      // Put new image to front.
+      imgBack.src = imgFront.src;
+      imgFront.src = src;
+
+      wrap.classList.remove('flip-next', 'flip-prev');
+      void wrap.offsetWidth; // trigger reflow
+      wrap.classList.add(dir === 'next' ? 'flip-next' : 'flip-prev');
 
       loading.style.display = 'none';
       currentEl.textContent = num;
@@ -95,6 +94,31 @@
       }, 700);
     });
   }
+
+  /* ── Auto-Play Logic ── */
+  let autoPlayTimer = null;
+  const autoPlayBtn = document.getElementById('fbAutoPlay');
+  
+  function toggleAutoPlay() {
+    if (autoPlayTimer) {
+      clearInterval(autoPlayTimer);
+      autoPlayTimer = null;
+      autoPlayBtn.textContent = 'Auto-Play ▶';
+      autoPlayBtn.classList.remove('active');
+    } else {
+      autoPlayBtn.textContent = 'Pause ⏸';
+      autoPlayBtn.classList.add('active');
+      autoPlayTimer = setInterval(() => {
+        if (current < total) {
+          goTo(current + 1, 'next');
+        } else {
+          goTo(1, 'next'); // loop back
+        }
+      }, 3000); // 3 seconds per page
+    }
+  }
+  
+  autoPlayBtn.addEventListener('click', toggleAutoPlay);
 
   function updateThumbs(num) {
     document.querySelectorAll('.fb-thumb').forEach(t => t.classList.remove('active'));
