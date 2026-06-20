@@ -676,42 +676,22 @@ img { max-width: 100%; display: block; }
   max-width: 90%;
 }
 
-.intro-text {
+.intro-line {
   font-family: var(--font-mono);
-  font-size: 1.2rem;
+  font-size: 1rem;
   color: var(--red);
-  margin-bottom: 0.5rem;
-  overflow: hidden;
-  white-space: nowrap;
-  width: 0;
+  margin-bottom: 0.3rem;
+  line-height: 1.4;
 }
 
-.intro-text::after {
-  content: "█";
-  animation: blink 1s step-end infinite;
+.intro-cursor {
+  display: inline-block;
+  width: 8px;
+  height: 1.2rem;
+  background-color: var(--red);
   margin-left: 5px;
-}
-
-#introText1 {
-  animation: typing1 1s steps(28, end) forwards;
-}
-
-#introText2 {
-  animation: typing2 1.5s steps(35, end) forwards;
-}
-
-#introText1::after {
-  animation: blink 1s step-end infinite, hideCursor 0s forwards 1.2s;
-}
-
-@keyframes typing1 {
-  from { width: 0; }
-  to { width: 28ch; }
-}
-
-@keyframes typing2 {
-  from { width: 0; }
-  to { width: 35ch; }
+  vertical-align: middle;
+  animation: blink 1s step-end infinite;
 }
 
 @keyframes blink {
@@ -719,12 +699,9 @@ img { max-width: 100%; display: block; }
   50% { opacity: 0; }
 }
 
-@keyframes hideCursor {
-  to { display: none; content: ""; }
-}
-
 @media (max-width: 768px) {
-  .intro-text { font-size: 0.8rem; }
+  .intro-line { font-size: 0.8rem; }
+  .intro-cursor { height: 1rem; }
 }
 
 /* ── Pagination ─────────────────────────────────────────── */

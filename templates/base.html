@@ -14,8 +14,7 @@
   <!-- ── Site Intro Animation (Plays once per session) ── -->
   <div id="site-intro" class="site-intro">
     <div class="intro-content">
-      <div class="intro-text" id="introText1">> ESTABLISHING CONNECTION...</div>
-      <div class="intro-text" id="introText2" style="display:none">> ACCESSING MINISTRY OF FAILURES...</div>
+      <div id="intro-container"></div>
     </div>
   </div>
 
@@ -83,22 +82,77 @@
     // Intro Animation Logic
     document.addEventListener("DOMContentLoaded", function() {
       const intro = document.getElementById("site-intro");
+      const container = document.getElementById("intro-container");
+
       if (!sessionStorage.getItem("introPlayed")) {
-        // Play animation
-        setTimeout(() => {
-          document.getElementById("introText2").style.display = "block";
-        }, 1200); // 1.2s before second line appears
-        
-        setTimeout(() => {
-          intro.classList.add("fade-out");
-        }, 3000); // Start fade out at 3s
-        
-        setTimeout(() => {
-          intro.style.display = "none";
-          sessionStorage.setItem("introPlayed", "true");
-        }, 3500); // Hide completely after 3.5s
+        const daysSi = ["ඉරිදා", "සඳුදා", "අඟහරුවාදා", "බදාදා", "බ්‍රහස්පතින්දා", "සිකුරාදා", "සෙනසුරාදා"];
+        const monthsSi = ["ජනවාරි", "පෙබරවාරි", "මාර්තු", "අප්‍රේල්", "මැයි", "ජුනි", "ජුලි", "අගෝස්තු", "සැප්තැම්බර්", "ඔක්තෝබර්", "නොවැම්බර්", "දෙසැම්බර්"];
+        const d = new Date();
+        const dateString = `අද ${d.getFullYear()} වන ${monthsSi[d.getMonth()]} මස ${d.getDate()} වන ${daysSi[d.getDay()]} දින,`;
+
+        const lines = [
+          dateString,
+          "",
+          "බලය ලබා ගැනීම සඳහා සංවේදීභාවය සාමූහිකත්වය",
+          "විවෘතභාවය සාධාරණත්වය බෙදා හදා ගැනීම යන",
+          "සාධනීය ලකුණු මත කටයුතු කරන්නා",
+          "බලය ලැබීමෙන් පසු ආචාරශීලිත්වය අත්හැර,",
+          "ආත්මාර්ථකාමීව සහ අයුක්ති සහගත ලෙස ක්රියාකරයි",
+          "",
+          "Prof. Dacher Keltner",
+          "University of California, Berkeley",
+          "",
+          "ACCESSING MINISTRY OF FAILURES..."
+        ];
+
+        let currentLine = 0;
+        let currentChar = 0;
+        let lineDiv = null;
+        let cursorSpan = null;
+
+        function typeLine() {
+          if (currentLine >= lines.length) {
+            // Finished typing
+            if (cursorSpan) cursorSpan.remove();
+            setTimeout(() => {
+              intro.classList.add("fade-out");
+              setTimeout(() => {
+                intro.style.display = "none";
+                sessionStorage.setItem("introPlayed", "true");
+              }, 500);
+            }, 1500); // Wait 1.5s before fading
+            return;
+          }
+
+          if (currentChar === 0) {
+            if (cursorSpan) cursorSpan.remove();
+            lineDiv = document.createElement("div");
+            lineDiv.className = "intro-line";
+            
+            // Add non-breaking space for empty lines so they render properly
+            if (lines[currentLine] === "") {
+                lineDiv.innerHTML = "&nbsp;";
+            }
+
+            cursorSpan = document.createElement("span");
+            cursorSpan.className = "intro-cursor";
+            lineDiv.appendChild(cursorSpan);
+            container.appendChild(lineDiv);
+          }
+
+          if (lines[currentLine] !== "" && currentChar < lines[currentLine].length) {
+            cursorSpan.insertAdjacentText("beforebegin", lines[currentLine].charAt(currentChar));
+            currentChar++;
+            setTimeout(typeLine, 30); // Typing speed
+          } else {
+            currentLine++;
+            currentChar = 0;
+            setTimeout(typeLine, 200); // Delay between lines
+          }
+        }
+
+        setTimeout(typeLine, 500); // Start typing after 500ms
       } else {
-        // Already played in this session, hide immediately
         intro.style.display = "none";
       }
     });
