@@ -239,6 +239,23 @@
   </div>
   {% endfor %}
 </section>
+
+{% if total_pages > 1 %}
+<div class="pagination">
+  {% if page > 1 %}
+    <a href="{{ request.path }}?page={{ page - 1 }}" class="page-btn">« පෙර</a>
+  {% endif %}
+  
+  {% for p in range(1, total_pages + 1) %}
+    <a href="{{ request.path }}?page={{ p }}" class="page-btn {% if p == page %}active{% endif %}">{{ p }}</a>
+  {% endfor %}
+  
+  {% if page < total_pages %}
+    <a href="{{ request.path }}?page={{ page + 1 }}" class="page-btn">ඊළඟ »</a>
+  {% endif %}
+</div>
+{% endif %}
+
 {% endif %}
 
 <!-- ── Quick Access ──────────────────────────────────────────────────────── -->

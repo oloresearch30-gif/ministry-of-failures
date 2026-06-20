@@ -146,22 +146,38 @@ def fetch_sanity_media(media_type):
 @app.route('/')
 def index():
     cards = fetch_sanity_cards('2025')
-    return render_template('index.html', cards=cards, year='2025')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total_pages = (len(cards) + per_page - 1) // per_page
+    paginated_cards = cards[(page - 1) * per_page : page * per_page]
+    return render_template('index.html', cards=paginated_cards, year='2025', page=page, total_pages=total_pages)
 
 @app.route('/index/2025')
 def index_2025():
     cards = fetch_sanity_cards('2025')
-    return render_template('index.html', cards=cards, year='2025')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total_pages = (len(cards) + per_page - 1) // per_page
+    paginated_cards = cards[(page - 1) * per_page : page * per_page]
+    return render_template('index.html', cards=paginated_cards, year='2025', page=page, total_pages=total_pages)
 
 @app.route('/index/2026')
 def index_2026():
     cards = fetch_sanity_cards('2026')
-    return render_template('index.html', cards=cards, year='2026')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total_pages = (len(cards) + per_page - 1) // per_page
+    paginated_cards = cards[(page - 1) * per_page : page * per_page]
+    return render_template('index.html', cards=paginated_cards, year='2026', page=page, total_pages=total_pages)
 
 @app.route('/index/2027')
 def index_2027():
     cards = fetch_sanity_cards('2027')
-    return render_template('index.html', cards=cards, year='2027')
+    page = request.args.get('page', 1, type=int)
+    per_page = 10
+    total_pages = (len(cards) + per_page - 1) // per_page
+    paginated_cards = cards[(page - 1) * per_page : page * per_page]
+    return render_template('index.html', cards=paginated_cards, year='2027', page=page, total_pages=total_pages)
 
 @app.route("/videos")
 def videos():

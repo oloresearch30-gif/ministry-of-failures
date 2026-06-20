@@ -726,3 +726,36 @@ img { max-width: 100%; display: block; }
 @media (max-width: 768px) {
   .intro-text { font-size: 0.8rem; }
 }
+
+/* ── Pagination ─────────────────────────────────────────── */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 2rem 0;
+  flex-wrap: wrap;
+}
+
+.page-btn {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  background: var(--mid);
+  border: 1px solid var(--border);
+  color: var(--light);
+  border-radius: var(--radius);
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  transition: var(--transition);
+}
+
+.page-btn:hover {
+  background: var(--dark);
+  color: var(--white);
+  border-color: var(--red);
+}
+
+.page-btn.active {
+  background: var(--red);
+  color: var(--white);
+  border-color: var(--red);
+}
