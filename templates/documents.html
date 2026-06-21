@@ -11,18 +11,28 @@
 <div class="gallery-controls">
   <input type="text" id="docSearch" class="search-input" placeholder="Search documents..." />
 </div>
-<div class="docs-list" id="docList">
+<div class="files-grid files-grid--videos" id="docList">
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Document' %}
-  <div class="doc-row" data-name="{{ name }}">
-    <div class="doc-icon">📄</div>
-    <div class="doc-details">
-      <span class="doc-name">{{ name }}</span>
-      <span class="doc-date">Index {{ f.cardNumber }} ({{ f.cardYear }})</span>
+  <div class="file-card" data-name="{{ name }}">
+    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" style="display:block; text-decoration:none;" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ name|replace('\'', '\\\'') }}')">
+      <div class="file-thumb" style="background: #fff; position: relative;">
+        <!-- Embedded preview using Google Docs Viewer, scaled down, no pointer events so clicks pass through -->
+        <iframe src="https://docs.google.com/viewer?url={{ f.url|urlencode }}&embedded=true" 
+                style="width: 200%; height: 200%; transform: scale(0.5); transform-origin: 0 0; border: none; pointer-events: none;" 
+                loading="lazy" tabindex="-1"></iframe>
+        <div class="play-badge" style="background: rgba(0,0,0,0.2);">📄</div>
+      </div>
+    </a>
+    <div class="file-info">
+      <span class="file-name" title="{{ name }}">{{ name }}</span>
+      <div class="file-actions">
+        <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ name|replace('\'', '\\\'') }}')">View ↗</a>
+        <a href="{{ f.url }}?dl=" class="btn btn--small btn--outline">Download</a>
+      </div>
     </div>
-    <div class="doc-actions">
-      <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ name|replace('\'', '\\\'') }}')">View ↗</a>
-      <a href="{{ f.url }}?dl=" class="btn btn--small btn--outline">Download</a>
+    <div style="padding: 0 0.75rem 0.75rem; font-size: 0.6rem; color: var(--dim);">
+      Index {{ f.cardNumber }} ({{ f.cardYear }})
     </div>
   </div>
   {% endfor %}
@@ -39,7 +49,7 @@
 <script>
 document.getElementById('docSearch')?.addEventListener('input', function() {
   const q = this.value.toLowerCase();
-  document.querySelectorAll('.doc-row').forEach(r => {
+  document.querySelectorAll('.file-card').forEach(r => {
     r.style.display = r.dataset.name.toLowerCase().includes(q) ? '' : 'none';
   });
 });
