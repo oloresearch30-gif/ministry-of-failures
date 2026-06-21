@@ -552,6 +552,7 @@ img { max-width: 100%; display: block; }
   .stats-grid { grid-template-columns: 1fr; }
   .rules-grid { flex-direction: column; gap: 0.75rem; }
   .files-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .files-grid--videos { grid-template-columns: 1fr; }
 
   .main-nav {
     display: none;
