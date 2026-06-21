@@ -738,3 +738,28 @@ img { max-width: 100%; display: block; }
   color: var(--white);
   border-color: var(--red);
 }
+
+/* ── Card Detail Page ──────────────────────────────────── */
+.card-detail-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem 4rem;
+}
+
+.card-detail-back {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  color: var(--red);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  transition: var(--transition);
+}
+
+.card-detail-back:hover {
+  background: var(--dark);
+  border-color: var(--red);
+}

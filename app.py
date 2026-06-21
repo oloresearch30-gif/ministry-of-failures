@@ -248,6 +248,26 @@ def pdf_count():
         print(f"PDF count error: {e}")
         return jsonify({"count": 0})
 
+@app.route('/card/<year>/<number>')
+def card_detail(year, number):
+    """Dedicated page for a single index card — used for social sharing with OG meta."""
+    cards = fetch_sanity_cards(year)
+    card = None
+    for c in cards:
+        if str(c.get('number', '')).lstrip('0') == str(number).lstrip('0') or c.get('number', '') == number:
+            card = c
+            break
+    if not card:
+        return redirect(url_for('index'))
+
+    # Build OG image URL from the card's image if available
+    og_image = None
+    if card.get('image') and card['image'].get('asset'):
+        ref = card['image']['asset']['_ref']
+        og_image = 'https://cdn.sanity.io/images/31sea43n/production/' + ref.replace('image-','').replace('-jpg','.jpg').replace('-png','.png').replace('-webp','.webp')
+
+    return render_template('card_detail.html', card=card, year=year, og_image=og_image)
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(debug=False, host="0.0.0.0", port=port)
