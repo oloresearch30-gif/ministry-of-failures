@@ -280,7 +280,8 @@ img { max-width: 100%; display: block; }
 .file-actions { display: flex; gap: 0.4rem; }
 .video-thumb-link { position: relative; display: block; aspect-ratio: 16/9; overflow: hidden; }
 .video-thumb-link img { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; }
-.video-thumb-link:hover img { transform: scale(1.05); }
+.file-thumb-video { width: 100%; height: 100%; object-fit: cover; transition: transform 0.3s; background: var(--dark); }
+.video-thumb-link:hover img, .video-thumb-link:hover .file-thumb-video { transform: scale(1.05); }
 .play-badge { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 2rem; color: white; background: rgba(0,0,0,0.4); opacity: 0; transition: opacity var(--transition); }
 .video-thumb-link:hover .play-badge { opacity: 1; }
 
