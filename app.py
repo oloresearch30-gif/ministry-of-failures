@@ -250,15 +250,24 @@ def pdf_count():
 
 @app.route('/card/<year>/<number>')
 def card_detail(year, number):
-    """Dedicated page for a single index card — used for social sharing with OG meta."""
+    """Share-friendly URL: renders the main index page on the correct pagination page,
+    highlights the target card, and injects OG meta tags for social media previews."""
     cards = fetch_sanity_cards(year)
     card = None
-    for c in cards:
+    card_index = 0
+    for i, c in enumerate(cards):
         if str(c.get('number', '')).lstrip('0') == str(number).lstrip('0') or c.get('number', '') == number:
             card = c
+            card_index = i
             break
     if not card:
         return redirect(url_for('index'))
+
+    # Calculate which page this card is on
+    per_page = 10
+    page = (card_index // per_page) + 1
+    total_pages = (len(cards) + per_page - 1) // per_page
+    paginated_cards = cards[(page - 1) * per_page : page * per_page]
 
     # Build OG image URL from the card's image if available
     og_image = None
@@ -266,7 +275,14 @@ def card_detail(year, number):
         ref = card['image']['asset']['_ref']
         og_image = 'https://cdn.sanity.io/images/31sea43n/production/' + ref.replace('image-','').replace('-jpg','.jpg').replace('-png','.png').replace('-webp','.webp')
 
-    return render_template('card_detail.html', card=card, year=year, og_image=og_image)
+    return render_template('index.html',
+        cards=paginated_cards, year=year, page=page, total_pages=total_pages,
+        highlight_card=card.get('number', ''),
+        og_title=card.get('titleSi', '') + ' — ' + card.get('titleEn', ''),
+        og_description=card.get('body', '')[:200],
+        og_image=og_image,
+        og_url=request.url
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
