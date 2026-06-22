@@ -560,8 +560,10 @@ img { max-width: 100%; display: block; }
     top: 64px;
     right: 1rem;
     width: 260px;
-    background: var(--dark);
-    border: 1px solid var(--border);
+    background: rgba(17, 17, 17, 0.4);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     border-top: 2px solid var(--red);
     z-index: 999;
     flex-direction: column;
@@ -637,20 +639,7 @@ img { max-width: 100%; display: block; }
   .nav-dropdown-menu { display: none !important; }
 
   .nav-close {
-    display: flex;
-    position: absolute;
-    top: 0.5rem;
-    right: 0.5rem;
-    background: none;
-    border: none;
-    color: var(--dim);
-    font-size: 1rem;
-    width: 2rem;
-    height: 2rem;
-    cursor: pointer;
-    border-radius: 2px;
-    align-items: center;
-    justify-content: center;
+    display: none !important;
   }
 
   .nav-close:hover { color: var(--white); }
