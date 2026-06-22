@@ -252,8 +252,19 @@ document.addEventListener('keydown', function(e) {
 const navToggle = document.getElementById('navToggle');
 const navClose  = document.getElementById('navClose');
 const mainNav   = document.getElementById('mainNav');
-if(navToggle) navToggle.addEventListener('click', () => mainNav.classList.add('open'));
+if(navToggle) navToggle.addEventListener('click', (e) => {
+  e.stopPropagation();
+  mainNav.classList.add('open');
+});
 if(navClose)  navClose.addEventListener('click',  () => mainNav.classList.remove('open'));
+
+document.addEventListener('click', function(e) {
+  if (mainNav && mainNav.classList.contains('open')) {
+    if (!mainNav.contains(e.target) && (!navToggle || !navToggle.contains(e.target))) {
+      mainNav.classList.remove('open');
+    }
+  }
+});
 </script>
   
 </body>

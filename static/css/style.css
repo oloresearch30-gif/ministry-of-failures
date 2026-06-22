@@ -592,6 +592,11 @@ img { max-width: 100%; display: block; }
     background: none;
   }
 
+  .main-nav .nav-dropdown .nav-link {
+    flex-direction: row;
+    justify-content: flex-start;
+  }
+
   .main-nav .nav-link:hover,
   .main-nav .nav-link.active {
     color: var(--red);
