@@ -15,12 +15,7 @@
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Video' %}
   <div class="file-card file-card--video" data-name="{{ name }}">
-    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" onclick="event.preventDefault();openMedia(this.href, 'video', '{{ name|replace('\'', '\\\'') }}')">
-      <div class="file-thumb" style="background: #111; display: flex; align-items: center; justify-content: center;">
-        <span style="font-size: 3rem; opacity: 0.5;">🎬</span>
-      </div>
-      <div class="play-badge">▶</div>
-    </a>
+
     <div class="file-info">
       <span class="file-name" title="{{ name }}">{{ name }}</span>
       <div class="file-actions">
