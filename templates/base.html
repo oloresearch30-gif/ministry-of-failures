@@ -96,7 +96,7 @@
     // Intro Animation Logic
     document.addEventListener("DOMContentLoaded", function() {
       const intro = document.getElementById("site-intro");
-      const container = document.getElementById("intro-container");
+      let container = document.getElementById("intro-container");
 
       if (!sessionStorage.getItem("introPlayed")) {
         const daysSi = ["ඉරිදා", "සඳුදා", "අඟහරුවාදා", "බදාදා", "බ්‍රහස්පතින්දා", "සිකුරාදා", "සෙනසුරාදා"];
