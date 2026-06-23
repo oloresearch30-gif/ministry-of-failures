@@ -8,11 +8,13 @@ document.addEventListener('DOMContentLoaded', () => {
 const toggle = document.querySelector('.nav-toggle');
 const navClose = document.querySelector('.nav-close');
 const nav    = document.querySelector('.main-nav');
-toggle?.addEventListener('click', () => nav?.classList.add('open'));
-navClose?.addEventListener('click', () => nav?.classList.remove('open'));
-nav?.querySelectorAll('.nav-link').forEach(l => {
-  l.addEventListener('click', () => nav.classList.remove('open'));
-});
+if (toggle) toggle.addEventListener('click', () => { if(nav) nav.classList.add('open'); });
+if (navClose) navClose.addEventListener('click', () => { if(nav) nav.classList.remove('open'); });
+if (nav) {
+  nav.querySelectorAll('.nav-link').forEach(l => {
+    l.addEventListener('click', () => nav.classList.remove('open'));
+  });
+}
 
 
   // ── Animated counters ────────────────────────────────────

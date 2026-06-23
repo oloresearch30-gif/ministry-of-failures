@@ -53,11 +53,14 @@
 
 
 // Search
-document.getElementById('gallerySearch')?.addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  document.querySelectorAll('.gallery-item').forEach(item => {
-    item.style.display = item.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+const gallerySearch = document.getElementById('gallerySearch');
+if (gallerySearch) {
+  gallerySearch.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.gallery-item').forEach(item => {
+      item.style.display = item.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+    });
   });
-});
+}
 </script>
 {% endblock %}

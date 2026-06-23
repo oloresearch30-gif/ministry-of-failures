@@ -49,12 +49,15 @@ function openVideoLb(e, el) {
   openMedia(el.href, 'video', title);
 }
 
-document.getElementById('vidSearch')?.addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  document.querySelectorAll('.file-card').forEach(c => {
-    c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+const vidSearch = document.getElementById('vidSearch');
+if (vidSearch) {
+  vidSearch.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.file-card').forEach(c => {
+      c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+    });
   });
-});
+}
 
 // YouTube style preview on hover
 document.querySelectorAll('.file-thumb-video').forEach(vid => {

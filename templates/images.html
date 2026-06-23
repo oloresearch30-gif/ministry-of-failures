@@ -42,12 +42,15 @@
 {% endblock %}
 {% block extra_js %}
 <script>
-document.getElementById('imgSearch')?.addEventListener('input', function() {
-  const q = this.value.toLowerCase();
-  document.querySelectorAll('.file-card').forEach(c => {
-    c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+const imgSearch = document.getElementById('imgSearch');
+if (imgSearch) {
+  imgSearch.addEventListener('input', function() {
+    const q = this.value.toLowerCase();
+    document.querySelectorAll('.file-card').forEach(c => {
+      c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+    });
   });
-});
+}
 </script>
 </div>
 {% endblock %}
