@@ -15,14 +15,14 @@
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Video' %}
   <div class="file-card file-card--video" data-name="{{ name }}">
-    <a href="{{ f.url }}" target="_blank" class="video-thumb-link">
+    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" onclick="openVideoLb(event, this)">
       <video class="file-thumb-video" src="{{ f.url }}#t=0.1" muted loop playsinline preload="metadata"></video>
       <div class="play-badge">▶</div>
     </a>
     <div class="file-info">
       <span class="file-name" title="{{ name }}">{{ name }}</span>
       <div class="file-actions">
-        <a href="{{ f.url }}" target="_blank" class="btn btn--small">Watch ↗</a>
+        <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick="openVideoLb(event, this)">Watch ↗</a>
         <a href="{{ f.url }}?dl=" class="btn btn--small btn--outline">Download</a>
       </div>
     </div>
@@ -42,6 +42,13 @@
 {% endblock %}
 {% block extra_js %}
 <script>
+function openVideoLb(e, el) {
+  e.preventDefault();
+  const card = el.closest('.file-card');
+  const title = card ? card.getAttribute('data-name') : 'Video';
+  openMedia(el.href, 'video', title);
+}
+
 document.getElementById('vidSearch')?.addEventListener('input', function() {
   const q = this.value.toLowerCase();
   document.querySelectorAll('.file-card').forEach(c => {
