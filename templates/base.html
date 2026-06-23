@@ -273,8 +273,12 @@ document.addEventListener("DOMContentLoaded", function() {
         if (video.isIntersecting) {
           let vidEl = video.target;
           if (vidEl.dataset.src) {
+            vidEl.preload = "metadata";
             vidEl.src = vidEl.dataset.src;
             vidEl.load();
+            vidEl.addEventListener('loadeddata', () => {
+              vidEl.currentTime = 0.1;
+            });
             vidEl.classList.remove("lazy-video");
             lazyVideoObserver.unobserve(vidEl);
           }
@@ -286,7 +290,13 @@ document.addEventListener("DOMContentLoaded", function() {
     });
   } else {
     document.querySelectorAll('video.lazy-video').forEach(function(vidEl) {
-      if (vidEl.dataset.src) vidEl.src = vidEl.dataset.src;
+      if (vidEl.dataset.src) {
+        vidEl.preload = "metadata";
+        vidEl.src = vidEl.dataset.src;
+        vidEl.addEventListener('loadeddata', () => {
+          vidEl.currentTime = 0.1;
+        });
+      }
     });
   }
 });
