@@ -15,7 +15,10 @@
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Video' %}
   <div class="file-card file-card--video" data-name="{{ name }}">
-
+    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" onclick="event.preventDefault();openMedia(this.href, 'video', '{{ name|replace('\'', '\\\'') }}')">
+      <video class="file-thumb-video lazy-video" data-src="{{ f.url }}#t=0.1" muted loop playsinline preload="none"></video>
+      <div class="play-badge">▶</div>
+    </a>
     <div class="file-info">
       <span class="file-name" title="{{ name }}">{{ name }}</span>
       <div class="file-actions">
@@ -43,6 +46,29 @@ document.getElementById('vidSearch')?.addEventListener('input', function() {
   const q = this.value.toLowerCase();
   document.querySelectorAll('.file-card').forEach(c => {
     c.style.display = c.dataset.name.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+
+// YouTube style preview on hover
+document.querySelectorAll('.file-thumb-video').forEach(vid => {
+  let playPromise;
+  vid.parentElement.addEventListener('mouseenter', () => {
+    if (!vid.src) vid.src = vid.dataset.src;
+    playPromise = vid.play();
+    if (playPromise !== undefined) {
+      playPromise.catch(error => {});
+    }
+  });
+  vid.parentElement.addEventListener('mouseleave', () => {
+    if (playPromise !== undefined) {
+      playPromise.then(_ => {
+        vid.pause();
+        vid.currentTime = 0.1;
+      }).catch(error => {});
+    } else {
+      vid.pause();
+      vid.currentTime = 0.1;
+    }
   });
 });
 

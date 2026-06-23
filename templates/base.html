@@ -223,7 +223,7 @@ function openMedia(url, type, title) {
     vid.style.display = 'block';
     vid.play().catch(e => console.log('Auto-play prevented', e));
   } else if (type === 'document') {
-    iframe.src = url;
+    iframe.src = 'https://docs.google.com/viewer?url=' + encodeURIComponent(url) + '&embedded=true';
     iframe.style.display = 'block';
   }
 
