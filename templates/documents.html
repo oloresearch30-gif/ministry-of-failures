@@ -15,7 +15,7 @@
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Document' %}
   <div class="file-card" data-name="{{ name }}">
-    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" style="display:block; text-decoration:none;" onclick='event.preventDefault();openMedia(this.href, "document", {{ name|tojson|safe }})'>
+    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" style="display:block; text-decoration:none;" onclick="event.preventDefault();openMedia(this.href, 'document', this.closest('.file-card').dataset.name)">
       <div class="file-thumb" style="background: #fff; position: relative;">
         <!-- Embedded preview using Google Docs Viewer, scaled down, no pointer events so clicks pass through -->
         <iframe src="https://docs.google.com/viewer?url={{ f.url|urlencode }}&embedded=true" 
@@ -27,7 +27,7 @@
     <div class="file-info">
       <span class="file-name" title="{{ name }}">{{ name }}</span>
       <div class="file-actions">
-        <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick='event.preventDefault();openMedia(this.href, "document", {{ name|tojson|safe }})'>View ↗</a>
+        <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick="event.preventDefault();openMedia(this.href, 'document', this.closest('.file-card').dataset.name)">View ↗</a>
         <a href="{{ f.url }}?dl=" class="btn btn--small btn--outline">Download</a>
       </div>
     </div>

@@ -15,14 +15,14 @@
   {% for f in files %}
   {% set name = f.title or f.originalFilename or 'Video' %}
   <div class="file-card file-card--video" data-name="{{ name }}">
-    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" onclick='event.preventDefault();openMedia(this.href, "video", {{ name|tojson|safe }})'>
+    <a href="{{ f.url }}" target="_blank" class="video-thumb-link" onclick="event.preventDefault();openMedia(this.href, 'video', this.closest('.file-card').dataset.name)">
       <video class="file-thumb-video" src="{{ f.url }}#t=0.1" muted loop playsinline preload="metadata"></video>
       <div class="play-badge">▶</div>
     </a>
     <div class="file-info">
       <span class="file-name" title="{{ name }}">{{ name }}</span>
       <div class="file-actions">
-        <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick='event.preventDefault();openMedia(this.href, "video", {{ name|tojson|safe }})'>Watch ↗</a>
+        <a href="{{ f.url }}" target="_blank" class="btn btn--small" onclick="event.preventDefault();openMedia(this.href, 'video', this.closest('.file-card').dataset.name)">Watch ↗</a>
         <a href="{{ f.url }}?dl=" class="btn btn--small btn--outline">Download</a>
       </div>
     </div>
@@ -51,6 +51,11 @@ document.getElementById('vidSearch')?.addEventListener('input', function() {
 
 // YouTube style preview on hover
 document.querySelectorAll('.file-thumb-video').forEach(vid => {
+  // Force first frame render for browsers that ignore #t=0.1
+  vid.addEventListener('loadedmetadata', () => {
+    vid.currentTime = 0.1;
+  });
+
   vid.parentElement.addEventListener('mouseenter', () => {
     vid.play().catch(error => {});
   });
