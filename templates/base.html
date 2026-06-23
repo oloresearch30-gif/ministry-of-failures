@@ -265,6 +265,32 @@ document.addEventListener('click', function(e) {
     }
   }
 });
+
+// Global lazy loading for videos
+document.addEventListener("DOMContentLoaded", function() {
+  if ('IntersectionObserver' in window) {
+    const lazyVideoObserver = new IntersectionObserver(function(entries, observer) {
+      entries.forEach(function(video) {
+        if (video.isIntersecting) {
+          let vidEl = video.target;
+          if (vidEl.dataset.src) {
+            vidEl.src = vidEl.dataset.src;
+            vidEl.load();
+            vidEl.classList.remove("lazy-video");
+            lazyVideoObserver.unobserve(vidEl);
+          }
+        }
+      });
+    }, { rootMargin: '0px 0px 500px 0px' });
+    document.querySelectorAll('video.lazy-video').forEach(function(vidEl) {
+      lazyVideoObserver.observe(vidEl);
+    });
+  } else {
+    document.querySelectorAll('video.lazy-video').forEach(function(vidEl) {
+      if (vidEl.dataset.src) vidEl.src = vidEl.dataset.src;
+    });
+  }
+});
 </script>
   
 </body>

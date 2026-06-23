@@ -199,12 +199,15 @@
     {% set has_images = card.get('images') and card['images']|length > 0 %}
     {% set has_documents = card.get('documents') and card['documents']|length > 0 %}
     {% if has_videos or has_images or has_documents %}
-    <div class="index-tags card-media-tags">
+    <div class="card-media-previews" style="display: flex; gap: 0.5rem; margin-top: 1rem; overflow-x: auto; padding-bottom: 0.5rem; scrollbar-width: none;">
       {% if has_videos %}
         {% for v in card['videos'] %}
           {% if v.get('url') %}
           {% set vtitle = v.title or v.originalFilename or 'Video' %}
-          <a href="{{ v.url }}" target="_blank" class="tag media-tag media-tag--video" title="{{ vtitle }}" onclick="event.preventDefault();openMedia(this.href, 'video', '{{ vtitle|replace('\'', '\\\'') }}')">🎬 {{ vtitle }}</a>
+          <a href="{{ v.url }}" target="_blank" title="{{ vtitle }}" onclick="event.preventDefault();openMedia(this.href, 'video', '{{ vtitle|replace('\'', '\\\'') }}')" style="flex-shrink: 0; width: 120px; height: 80px; position: relative; border-radius: 4px; overflow: hidden; background: #111; border: 1px solid var(--border);">
+            <video class="lazy-video" data-src="{{ v.url }}#t=0.1" preload="none" muted loop playsinline style="width: 100%; height: 100%; object-fit: cover;"></video>
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.3); color: white; font-size: 1.5rem;">▶</div>
+          </a>
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -212,7 +215,9 @@
         {% for img in card['images'] %}
           {% if img.get('url') %}
           {% set ititle = img.title or img.originalFilename or 'Image' %}
-          <a href="{{ img.url }}" target="_blank" class="tag media-tag media-tag--image" title="{{ ititle }}" onclick="event.preventDefault();openMedia(this.href, 'image', '{{ ititle|replace('\'', '\\\'') }}')">🖼 {{ ititle }}</a>
+          <a href="{{ img.url }}" target="_blank" title="{{ ititle }}" onclick="event.preventDefault();openMedia(this.href, 'image', '{{ ititle|replace('\'', '\\\'') }}')" style="flex-shrink: 0; width: 120px; height: 80px; border-radius: 4px; overflow: hidden; border: 1px solid var(--border);">
+            <img src="{{ img.url }}?w=240&q=70" loading="lazy" style="width: 100%; height: 100%; object-fit: cover;" />
+          </a>
           {% endif %}
         {% endfor %}
       {% endif %}
@@ -220,7 +225,10 @@
         {% for doc in card['documents'] %}
           {% if doc.get('url') %}
           {% set dtitle = doc.title or doc.originalFilename or 'Document' %}
-          <a href="{{ doc.url }}" target="_blank" class="tag media-tag media-tag--doc" title="{{ dtitle }}" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ dtitle|replace('\'', '\\\'') }}')">📄 {{ dtitle }}</a>
+          <a href="{{ doc.url }}" target="_blank" title="{{ dtitle }}" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ dtitle|replace('\'', '\\\'') }}')" style="flex-shrink: 0; width: 120px; height: 80px; position: relative; border-radius: 4px; overflow: hidden; background: #fff; border: 1px solid var(--border);">
+            <iframe src="https://docs.google.com/viewer?url={{ doc.url|urlencode }}&embedded=true" style="width: 200%; height: 200%; transform: scale(0.5); transform-origin: 0 0; border: none; pointer-events: none;" loading="lazy" tabindex="-1"></iframe>
+            <div style="position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; background: rgba(0,0,0,0.1); color: #333; font-size: 1.5rem;">📄</div>
+          </a>
           {% endif %}
         {% endfor %}
       {% endif %}
