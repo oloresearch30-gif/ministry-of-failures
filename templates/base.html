@@ -223,8 +223,7 @@ function openMedia(url, type, title) {
     vid.style.display = 'block';
     vid.play().catch(e => console.log('Auto-play prevented', e));
   } else if (type === 'document') {
-    // Use Google Docs viewer to ensure PDF preview works on mobile devices
-    iframe.src = 'https://docs.google.com/viewer?url=' + encodeURIComponent(url) + '&embedded=true';
+    iframe.src = url;
     iframe.style.display = 'block';
   }
 

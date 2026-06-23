@@ -16,11 +16,8 @@
   {% set name = f.title or f.originalFilename or 'Document' %}
   <div class="file-card" data-name="{{ name }}">
     <a href="{{ f.url }}" target="_blank" class="video-thumb-link" style="display:block; text-decoration:none;" onclick="event.preventDefault();openMedia(this.href, 'document', '{{ name|replace('\'', '\\\'') }}')">
-      <div class="file-thumb" style="background: #fff; position: relative;">
-        <!-- Embedded preview using Google Docs Viewer, scaled down, no pointer events so clicks pass through -->
-        <iframe src="https://docs.google.com/viewer?url={{ f.url|urlencode }}&embedded=true" 
-                style="width: 200%; height: 200%; transform: scale(0.5); transform-origin: 0 0; border: none; pointer-events: none;" 
-                loading="lazy" tabindex="-1"></iframe>
+      <div class="file-thumb" style="background: #fff; display: flex; align-items: center; justify-content: center; position: relative;">
+        <span style="font-size: 3rem; color: #333; opacity: 0.8;">📄</span>
         <div class="play-badge" style="background: rgba(0,0,0,0.2);">📄</div>
       </div>
     </a>
