@@ -676,6 +676,7 @@ img { max-width: 100%; display: block; }
 
 .intro-line {
   font-family: var(--font-mono);
+  font-size: 20px;
   font-size: clamp(1.2rem, 2.5vw, 2.5rem);
   color: var(--red);
   margin-bottom: 0.5rem;
@@ -685,6 +686,8 @@ img { max-width: 100%; display: block; }
 
 .intro-cursor {
   display: inline-block;
+  width: 10px;
+  height: 24px;
   width: clamp(8px, 1.2vw, 16px);
   height: clamp(1.4rem, 3vw, 3rem);
   background-color: var(--red);
@@ -700,8 +703,16 @@ img { max-width: 100%; display: block; }
 
 @media (max-width: 768px) {
   .intro-content { padding: 0 1rem; }
-  .intro-line { font-size: clamp(1rem, 4vw, 1.5rem); margin-bottom: 0.8rem; }
-  .intro-cursor { height: clamp(1.2rem, 4.5vw, 1.8rem); width: 6px; }
+  .intro-line { 
+    font-size: 16px; 
+    font-size: clamp(1rem, 4vw, 1.5rem); 
+    margin-bottom: 0.8rem; 
+  }
+  .intro-cursor { 
+    height: 18px; 
+    height: clamp(1.2rem, 4.5vw, 1.8rem); 
+    width: 6px; 
+  }
 }
 
 /* ── Pagination ─────────────────────────────────────────── */

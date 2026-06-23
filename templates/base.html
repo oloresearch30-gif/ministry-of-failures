@@ -129,22 +129,40 @@
           try {
             if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
             if (audioCtx.state === 'suspended') audioCtx.resume();
-            const osc = audioCtx.createOscillator();
+            
+            const bufferSize = audioCtx.sampleRate * 0.04;
+            const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+            const data = buffer.getChannelData(0);
+            for (let i = 0; i < bufferSize; i++) {
+              data[i] = Math.random() * 2 - 1;
+            }
+            const noise = audioCtx.createBufferSource();
+            noise.buffer = buffer;
             const gain = audioCtx.createGain();
-            osc.type = 'triangle';
-            osc.frequency.setValueAtTime(800 + Math.random() * 200, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
-            osc.connect(gain);
+            const filter = audioCtx.createBiquadFilter();
+            filter.type = 'highpass';
+            filter.frequency.value = 1500;
+            
+            gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.03);
+            
+            noise.connect(filter);
+            filter.connect(gain);
             gain.connect(audioCtx.destination);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.03);
+            noise.start();
           } catch(e) {}
         }
 
-        // Try to unlock audio context on any interaction if user clicks during intro
-        document.addEventListener('click', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
-        document.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
+        // Wait for user interaction to bypass autoplay restrictions
+        intro.innerHTML = '<div style="color:var(--red); font-family:var(--font-mono); font-size:1.5rem; cursor:pointer; padding:2rem; border:1px solid var(--red); display:inline-block; text-align:center; animation:blink 2s infinite;" id="enter-btn">[ INITIALIZE SYSTEM ]<br><small style="font-size:0.8rem;color:#888;">Tap to begin</small></div>';
+        
+        document.getElementById("enter-btn").addEventListener("click", function() {
+          intro.innerHTML = '<div class="intro-content"><div id="intro-container"></div></div>';
+          container = document.getElementById("intro-container"); // re-assign
+          if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+          audioCtx.resume();
+          setTimeout(typeLine, 300);
+        });
 
         function typeLine() {
           if (currentLine >= lines.length) {
@@ -189,7 +207,7 @@
           }
         }
 
-        setTimeout(typeLine, 500); // Start typing after 500ms
+        // setTimeout(typeLine, 500); // Removed to wait for user interaction
       } else {
         intro.style.display = "none";
       }
