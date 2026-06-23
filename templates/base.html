@@ -123,6 +123,28 @@
         let currentChar = 0;
         let lineDiv = null;
         let cursorSpan = null;
+        
+        let audioCtx = null;
+        function playTypingSound() {
+          try {
+            if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            if (audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(800 + Math.random() * 200, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.03);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.03);
+          } catch(e) {}
+        }
+
+        // Try to unlock audio context on any interaction if user clicks during intro
+        document.addEventListener('click', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
+        document.addEventListener('touchstart', () => { if(audioCtx && audioCtx.state === 'suspended') audioCtx.resume(); }, {once:true});
 
         function typeLine() {
           if (currentLine >= lines.length) {
@@ -155,8 +177,10 @@
           }
 
           if (lines[currentLine] !== "" && currentChar < lines[currentLine].length) {
-            cursorSpan.insertAdjacentText("beforebegin", lines[currentLine].charAt(currentChar));
+            const char = lines[currentLine].charAt(currentChar);
+            cursorSpan.insertAdjacentText("beforebegin", char);
             currentChar++;
+            if (char !== ' ') playTypingSound();
             setTimeout(typeLine, 30); // Typing speed
           } else {
             currentLine++;

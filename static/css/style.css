@@ -669,21 +669,24 @@ img { max-width: 100%; display: block; }
 
 .intro-content {
   text-align: left;
-  max-width: 90%;
+  max-width: 95%;
+  width: 100%;
+  padding: 0 2rem;
 }
 
 .intro-line {
   font-family: var(--font-mono);
-  font-size: 1rem;
+  font-size: clamp(1.2rem, 2.5vw, 2.5rem);
   color: var(--red);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.5rem;
   line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .intro-cursor {
   display: inline-block;
-  width: 8px;
-  height: 1.2rem;
+  width: clamp(8px, 1.2vw, 16px);
+  height: clamp(1.4rem, 3vw, 3rem);
   background-color: var(--red);
   margin-left: 5px;
   vertical-align: middle;
@@ -696,8 +699,9 @@ img { max-width: 100%; display: block; }
 }
 
 @media (max-width: 768px) {
-  .intro-line { font-size: 0.8rem; }
-  .intro-cursor { height: 1rem; }
+  .intro-content { padding: 0 1rem; }
+  .intro-line { font-size: clamp(1rem, 4vw, 1.5rem); margin-bottom: 0.8rem; }
+  .intro-cursor { height: clamp(1.2rem, 4.5vw, 1.8rem); width: 6px; }
 }
 
 /* ── Pagination ─────────────────────────────────────────── */
