@@ -70,7 +70,8 @@ def fetch_sanity_cards(year=None):
     cache = fetch_sanity_cards._cache
     cache_key = year or 'all'
     now = time.time()
-    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 30:
+    # Cache for 5 minutes (300 seconds) to handle high concurrent traffic
+    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 300:
         try:
             if year:
                 query = f'*[_type == "indexCard" && active == true && year == "{year}"] | order(number asc) ' + SANITY_MEDIA_PROJECTION
@@ -104,7 +105,8 @@ def fetch_sanity_media(media_type):
         fetch_sanity_media._cache = {}
     cache = fetch_sanity_media._cache
     now = time.time()
-    if media_type not in cache or now - cache.get(media_type + '_ts', 0) > 30:
+    # Cache for 5 minutes (300 seconds)
+    if media_type not in cache or now - cache.get(media_type + '_ts', 0) > 300:
         try:
             project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
             dataset = os.environ.get('SANITY_DATASET', 'production')
@@ -229,17 +231,17 @@ def api_files():
 @app.route("/pdf/page/<int:num>")
 def pdf_page(num):
     try:
-        import fitz
-        pdf_path = os.path.join(app.static_folder, "pdf", "NPP_Failures_size_redue.pdf")
-        if not os.path.exists(pdf_path): return "PDF not found", 404
-        doc = fitz.open(pdf_path)
-        if num < 1 or num > len(doc): return "Page out of range", 404
-        page = doc[num - 1]
-        pix = page.get_pixmap(matrix=fitz.Matrix(1.2, 1.2))
-        jpg = pix.tobytes("jpeg", jpg_quality=75)
-        doc.close()
-        response = app.response_class(jpg, mimetype="image/jpeg")
-        response.headers['Cache-Control'] = 'public, max-age=86400'
+        # Pre-rendered images are stored in static/pdf_pages/
+        images_dir = os.path.join(app.static_folder, "pdf_pages")
+        filename = f"page_{num}.jpg"
+        
+        # Verify the file exists before sending
+        if not os.path.exists(os.path.join(images_dir, filename)):
+            return "Page out of range", 404
+            
+        from flask import send_from_directory
+        response = send_from_directory(images_dir, filename, mimetype="image/jpeg")
+        response.headers['Cache-Control'] = 'public, max-age=864000' # Cache for 10 days
         return response
     except Exception as e:
         return str(e), 500
@@ -247,16 +249,15 @@ def pdf_page(num):
 @app.route("/pdf/count")
 def pdf_count():
     try:
-        import fitz
-        pdf_path = os.path.join(app.static_folder, "pdf", "NPP_Failures_size_redue.pdf")
-        if not os.path.exists(pdf_path): return jsonify({"count": 0})
-        doc = fitz.open(pdf_path)
-        count = len(doc)
-        doc.close()
+        images_dir = os.path.join(app.static_folder, "pdf_pages")
+        if not os.path.exists(images_dir): 
+            return jsonify({"count": 0})
+        
+        # Count the number of .jpg files in the directory
+        count = len([f for f in os.listdir(images_dir) if f.endswith('.jpg')])
         return jsonify({"count": count})
     except Exception as e:
-        print(f"PDF count error: {e}")
-        return jsonify({"count": 0})
+        return jsonify({"error": str(e)}), 500
 
 @app.route('/card/<year>/<number>')
 def card_detail(year, number):
