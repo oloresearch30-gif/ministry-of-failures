@@ -80,7 +80,17 @@ def fetch_sanity_cards(year=None):
             dataset = os.environ.get('SANITY_DATASET', 'production')
             url = f"https://{project_id}.api.sanity.io/v2021-10-21/data/query/{dataset}?query={req.utils.quote(query)}"
             res = req.get(url, timeout=5)
-            cache[cache_key] = res.json().get('result', [])
+            fetched_cards = res.json().get('result', [])
+            
+            # Sort numerically since Sanity sorts them as strings (e.g. 100 comes before 99)
+            def sort_key(card):
+                try:
+                    return float(card.get('number', 0))
+                except (ValueError, TypeError):
+                    return 0
+                    
+            fetched_cards.sort(key=sort_key)
+            cache[cache_key] = fetched_cards
             cache[cache_key + '_ts'] = now
         except Exception as e:
             print(f"Sanity error: {e}")
