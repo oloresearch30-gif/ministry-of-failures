@@ -8,4 +8,4 @@ PyMuPDF
 flask-admin
 flask-sqlalchemy
 flask-login
-werkzeugwaitress
+waitress
