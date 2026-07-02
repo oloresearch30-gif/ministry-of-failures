@@ -70,7 +70,7 @@ def fetch_sanity_cards(year=None):
     cache = fetch_sanity_cards._cache
     cache_key = year or 'all'
     now = time.time()
-    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 30:
+    if cache_key not in cache or now - cache.get(cache_key + '_ts', 0) > 300:
         try:
             if year:
                 query = f'*[_type == "indexCard" && active == true && year == "{year}"] | order(number asc) ' + SANITY_MEDIA_PROJECTION
@@ -104,7 +104,7 @@ def fetch_sanity_media(media_type):
         fetch_sanity_media._cache = {}
     cache = fetch_sanity_media._cache
     now = time.time()
-    if media_type not in cache or now - cache.get(media_type + '_ts', 0) > 30:
+    if media_type not in cache or now - cache.get(media_type + '_ts', 0) > 300:
         try:
             project_id = os.environ.get('SANITY_PROJECT_ID', '31sea43n')
             dataset = os.environ.get('SANITY_DATASET', 'production')
@@ -229,6 +229,14 @@ def api_files():
 @app.route("/pdf/page/<int:num>")
 def pdf_page(num):
     try:
+        # Try pre-rendered static image first (fast path)
+        static_path = os.path.join(app.static_folder, "pdf_pages", f"page_{num}.jpg")
+        if os.path.exists(static_path):
+            from flask import send_file
+            response = send_file(static_path, mimetype="image/jpeg")
+            response.headers['Cache-Control'] = 'public, max-age=864000'
+            return response
+        # Fallback: render on the fly (original method)
         import fitz
         pdf_path = os.path.join(app.static_folder, "pdf", "NPP_Failures_size_redue.pdf")
         if not os.path.exists(pdf_path): return "PDF not found", 404
