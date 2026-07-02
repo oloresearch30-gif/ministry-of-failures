@@ -284,6 +284,10 @@ def card_detail(year, number):
         og_url=request.url
     )
 
+@app.route('/health')
+def health():
+    return "OK", 200
+
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 8000))
     app.run(debug=False, host="0.0.0.0", port=port)
