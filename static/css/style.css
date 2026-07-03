@@ -266,6 +266,14 @@ img { max-width: 100%; display: block; }
 .univ-lightbox-caption { display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-shrink: 0; }
 .univ-lightbox-caption span { font-family: var(--font-mono); font-size: 0.85rem; color: var(--white); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
+/* ── Lightbox Controls (Zoom / Fullscreen) ─────────────── */
+.lb-controls { display: flex; align-items: center; gap: 0.4rem; justify-content: center; flex-shrink: 0; padding: 0.3rem 0.6rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); }
+.lb-ctrl-btn { background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.15); color: #fff; font-size: 1.1rem; width: 2.2rem; height: 2.2rem; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: background 0.2s, transform 0.15s; }
+.lb-ctrl-btn:hover { background: rgba(255,255,255,0.2); transform: scale(1.08); }
+.lb-ctrl-btn:active { transform: scale(0.95); }
+.lb-zoom-label { font-family: var(--font-mono); font-size: 0.75rem; color: rgba(255,255,255,0.7); min-width: 3rem; text-align: center; }
+.univ-lb-content img { transition: transform 0.15s ease-out; transform-origin: center center; }
+
 /* ── Files grid ─────────────────────────────────────────── */
 .files-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 1rem; max-width: 1400px; margin: 0 auto; padding: 1rem 1.5rem 3rem; }
 .files-grid--videos { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); }

@@ -221,6 +221,15 @@
   <button class="univ-lightbox-close" onclick="closeMedia()">✕</button>
   <div class="univ-lightbox-inner" onclick="event.stopPropagation()">
     
+    <!-- Zoom & Fullscreen Control Panel -->
+    <div id="lb-controls" class="lb-controls" style="display:none;">
+      <button class="lb-ctrl-btn" onclick="lbZoomIn()" title="Zoom In">＋</button>
+      <button class="lb-ctrl-btn" onclick="lbZoomOut()" title="Zoom Out">－</button>
+      <button class="lb-ctrl-btn" onclick="lbZoomReset()" title="Reset Zoom">↺</button>
+      <span id="lb-zoom-level" class="lb-zoom-label">100%</span>
+      <button class="lb-ctrl-btn" onclick="lbToggleFullscreen()" title="Fullscreen" id="lb-fs-btn">⛶</button>
+    </div>
+
     <div id="univ-lb-content" class="univ-lb-content">
       <img id="univ-lb-img" class="univ-media-item" src="" alt="" style="display:none;" />
       <video id="univ-lb-video" class="univ-media-item" controls style="display:none;"></video>
@@ -235,24 +244,63 @@
 </div>
 
 <script>
-function openMedia(url, type, title) {
-  const lb = document.getElementById('univ-lightbox');
-  const img = document.getElementById('univ-lb-img');
-  const vid = document.getElementById('univ-lb-video');
-  const iframe = document.getElementById('univ-lb-iframe');
-  const titleEl = document.getElementById('univ-lb-title');
-  const linkEl = document.getElementById('univ-lb-link');
+var lbZoom = 1;
+var lbPanX = 0, lbPanY = 0;
+var lbDragging = false, lbStartX = 0, lbStartY = 0;
+var lbCurrentType = '';
 
-  // Hide all media elements initially
+function lbApplyTransform() {
+  var img = document.getElementById('univ-lb-img');
+  img.style.transform = 'scale(' + lbZoom + ') translate(' + lbPanX + 'px, ' + lbPanY + 'px)';
+  document.getElementById('lb-zoom-level').textContent = Math.round(lbZoom * 100) + '%';
+}
+
+function lbZoomIn() {
+  if (lbZoom < 5) { lbZoom = Math.min(5, lbZoom + 0.25); lbApplyTransform(); }
+}
+function lbZoomOut() {
+  if (lbZoom > 0.25) { lbZoom = Math.max(0.25, lbZoom - 0.25); if (lbZoom <= 1) { lbPanX = 0; lbPanY = 0; } lbApplyTransform(); }
+}
+function lbZoomReset() {
+  lbZoom = 1; lbPanX = 0; lbPanY = 0; lbApplyTransform();
+}
+
+function lbToggleFullscreen() {
+  var lb = document.getElementById('univ-lightbox');
+  if (!document.fullscreenElement) {
+    lb.requestFullscreen().catch(function(e) { console.log('Fullscreen error:', e); });
+  } else {
+    document.exitFullscreen();
+  }
+}
+
+document.addEventListener('fullscreenchange', function() {
+  var btn = document.getElementById('lb-fs-btn');
+  if (btn) btn.textContent = document.fullscreenElement ? '⛶' : '⛶';
+});
+
+function openMedia(url, type, title) {
+  var lb = document.getElementById('univ-lightbox');
+  var img = document.getElementById('univ-lb-img');
+  var vid = document.getElementById('univ-lb-video');
+  var iframe = document.getElementById('univ-lb-iframe');
+  var titleEl = document.getElementById('univ-lb-title');
+  var linkEl = document.getElementById('univ-lb-link');
+  var controls = document.getElementById('lb-controls');
+
   img.style.display = 'none';
   vid.style.display = 'none';
   iframe.style.display = 'none';
 
-  // Pause video if it was playing previously
   vid.pause();
   vid.src = '';
   img.src = '';
   iframe.src = '';
+
+  lbZoom = 1; lbPanX = 0; lbPanY = 0;
+  img.style.transform = '';
+  img.style.cursor = '';
+  lbCurrentType = type;
 
   titleEl.textContent = title || '';
   linkEl.href = url;
@@ -260,13 +308,17 @@ function openMedia(url, type, title) {
   if (type === 'image') {
     img.src = url;
     img.style.display = 'block';
+    controls.style.display = 'flex';
+    document.getElementById('lb-zoom-level').textContent = '100%';
   } else if (type === 'video') {
     vid.src = url;
     vid.style.display = 'block';
-    vid.play().catch(e => console.log('Auto-play prevented', e));
+    controls.style.display = 'none';
+    vid.play().catch(function(e) { console.log('Auto-play prevented', e); });
   } else if (type === 'document') {
     iframe.src = 'https://docs.google.com/viewer?url=' + encodeURIComponent(url) + '&embedded=true';
     iframe.style.display = 'block';
+    controls.style.display = 'none';
   }
 
   lb.classList.add('active');
@@ -274,30 +326,96 @@ function openMedia(url, type, title) {
 }
 
 function closeMedia() {
-  const lb = document.getElementById('univ-lightbox');
-  const vid = document.getElementById('univ-lb-video');
-  const iframe = document.getElementById('univ-lb-iframe');
+  var lb = document.getElementById('univ-lightbox');
+  var vid = document.getElementById('univ-lb-video');
+  var iframe = document.getElementById('univ-lb-iframe');
+  var img = document.getElementById('univ-lb-img');
+  var controls = document.getElementById('lb-controls');
   
   vid.pause();
   vid.src = '';
   iframe.src = '';
+  img.style.transform = '';
+  controls.style.display = 'none';
+  lbZoom = 1; lbPanX = 0; lbPanY = 0;
+
+  if (document.fullscreenElement) document.exitFullscreen();
   
   lb.classList.remove('active');
   document.body.style.overflow = '';
 }
 
-document.addEventListener('keydown', function(e) {
-  if (e.key === 'Escape') closeMedia();
+/* Mouse wheel zoom on image */
+document.addEventListener('DOMContentLoaded', function() {
+  var content = document.getElementById('univ-lb-content');
+  if (content) {
+    content.addEventListener('wheel', function(e) {
+      if (lbCurrentType !== 'image') return;
+      e.preventDefault();
+      if (e.deltaY < 0) lbZoomIn(); else lbZoomOut();
+    }, {passive: false});
+  }
+
+  /* Drag to pan when zoomed */
+  var img = document.getElementById('univ-lb-img');
+  if (img) {
+    img.addEventListener('mousedown', function(e) {
+      if (lbZoom <= 1) return;
+      lbDragging = true;
+      lbStartX = e.clientX - lbPanX;
+      lbStartY = e.clientY - lbPanY;
+      img.style.cursor = 'grabbing';
+      e.preventDefault();
+    });
+    document.addEventListener('mousemove', function(e) {
+      if (!lbDragging) return;
+      lbPanX = e.clientX - lbStartX;
+      lbPanY = e.clientY - lbStartY;
+      lbApplyTransform();
+    });
+    document.addEventListener('mouseup', function() {
+      if (lbDragging) {
+        lbDragging = false;
+        img.style.cursor = lbZoom > 1 ? 'grab' : '';
+      }
+    });
+
+    /* Touch drag to pan */
+    img.addEventListener('touchstart', function(e) {
+      if (lbZoom <= 1 || e.touches.length !== 1) return;
+      lbDragging = true;
+      lbStartX = e.touches[0].clientX - lbPanX;
+      lbStartY = e.touches[0].clientY - lbPanY;
+    }, {passive: true});
+    img.addEventListener('touchmove', function(e) {
+      if (!lbDragging || e.touches.length !== 1) return;
+      lbPanX = e.touches[0].clientX - lbStartX;
+      lbPanY = e.touches[0].clientY - lbStartY;
+      lbApplyTransform();
+      e.preventDefault();
+    }, {passive: false});
+    img.addEventListener('touchend', function() { lbDragging = false; });
+  }
 });
 
-const navToggle = document.getElementById('navToggle');
-const navClose  = document.getElementById('navClose');
-const mainNav   = document.getElementById('mainNav');
-if(navToggle) navToggle.addEventListener('click', (e) => {
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeMedia();
+  if (lbCurrentType === 'image') {
+    if (e.key === '+' || e.key === '=') lbZoomIn();
+    if (e.key === '-') lbZoomOut();
+    if (e.key === '0') lbZoomReset();
+    if (e.key === 'f' || e.key === 'F') lbToggleFullscreen();
+  }
+});
+
+var navToggle = document.getElementById('navToggle');
+var navClose  = document.getElementById('navClose');
+var mainNav   = document.getElementById('mainNav');
+if(navToggle) navToggle.addEventListener('click', function(e) {
   e.stopPropagation();
   mainNav.classList.add('open');
 });
-if(navClose)  navClose.addEventListener('click',  () => mainNav.classList.remove('open'));
+if(navClose)  navClose.addEventListener('click',  function() { mainNav.classList.remove('open'); });
 
 document.addEventListener('click', function(e) {
   if (mainNav && mainNav.classList.contains('open')) {
